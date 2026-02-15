@@ -4,3 +4,34 @@ body {
     text-align: center;
     margin-top: 50px;
 }
+
+.container {
+    margin: 0 auto;
+    padding: 20px;
+    background: #fff;
+    width: 500px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    border-radius: 10px;
+}
+
+input {
+    padding: 5px 10px;
+    width: 250px;
+    font-size: 16px;
+}
+
+button {
+    padding: 5px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+#result {
+    margin-top: 20px;
+    padding: 10px;
+    background: #eee;
+    border-radius: 5px;
+    min-height: 80px;
+    text-align: left;
+}
