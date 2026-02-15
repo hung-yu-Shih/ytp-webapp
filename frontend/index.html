@@ -1,40 +1,41 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>臺北市公車 ETA 查詢</title>
-    <link rel="stylesheet" href="style.css">
+    <title>臺北市公車 ETA</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <div class="container">
-        <h1>臺北市公車 ETA 查詢</h1>
-        <input type="text" id="routeInput" placeholder="輸入路線代碼，例如 307">
-        <button onclick="fetchBus()">查詢</button>
+        <h1>臺北市公車預估到站時間</h1>
+        <input type="text" id="routeInput" placeholder="輸入公車號碼，如：棕1">
+        <button onclick="fetchETA()">查詢</button>
         <div id="result"></div>
     </div>
 
     <script>
-        async function fetchBus() {
+        async function fetchETA() {
             const route = document.getElementById("routeInput").value.trim();
+            if (!route) return;
             const resultDiv = document.getElementById("result");
-            resultDiv.innerHTML = "載入中...";
+            resultDiv.innerHTML = "查詢中...";
             try {
-                const res = await fetch(`/bus/${route}`);
+                const res = await fetch(`/bus/${encodeURIComponent(route)}`);
                 if (!res.ok) throw new Error("找不到資料");
                 const data = await res.json();
-                let html = `<h2>路線 ${data.RouteID}</h2><table>
-                    <tr><th>站牌ID</th><th>預估到站</th><th>去返程</th></tr>`;
-                data.ETA.forEach(r => {
+                let html = `<h2>路線: ${data.RouteName}</h2>`;
+                html += "<table><tr><th>StopID</th><th>ETA</th><th>去返程</th></tr>";
+                data.ETA.forEach(row => {
                     html += `<tr>
-                        <td>${r.StopID}</td>
-                        <td>${r.EstimateTime}</td>
-                        <td>${r.GoBack}</td>
+                        <td>${row.StopID}</td>
+                        <td>${row.EstimateTime}</td>
+                        <td>${row.GoBack}</td>
                     </tr>`;
                 });
                 html += "</table>";
                 resultDiv.innerHTML = html;
             } catch (e) {
-                resultDiv.innerHTML = `<p class="error">${e.message}</p>`;
+                resultDiv.innerHTML = `<p style="color:red">${e.message}</p>`;
             }
         }
     </script>
