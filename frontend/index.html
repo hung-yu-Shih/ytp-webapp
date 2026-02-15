@@ -1,27 +1,42 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <title>台北 AI 觀光工具</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <title>臺北市公車 ETA 查詢</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>歡迎來到台北 AI 觀光工具</h1>
-    <button id="load">載入景點資訊</button>
-    <ul id="parks"></ul>
+    <div class="container">
+        <h1>臺北市公車 ETA 查詢</h1>
+        <input type="text" id="routeInput" placeholder="輸入路線代碼，例如 307">
+        <button onclick="fetchBus()">查詢</button>
+        <div id="result"></div>
+    </div>
 
     <script>
-        document.getElementById("load").onclick = async () => {
-            const res = await fetch("/api/parks");
-            const data = await res.json();
-            const list = document.getElementById("parks");
-            list.innerHTML = "";
-            data.parks.forEach(p => {
-                const li = document.createElement("li");
-                li.textContent = `${p.name} - ${p.address}`;
-                list.appendChild(li);
-            });
-        };
+        async function fetchBus() {
+            const route = document.getElementById("routeInput").value.trim();
+            const resultDiv = document.getElementById("result");
+            resultDiv.innerHTML = "載入中...";
+            try {
+                const res = await fetch(`/bus/${route}`);
+                if (!res.ok) throw new Error("找不到資料");
+                const data = await res.json();
+                let html = `<h2>路線 ${data.RouteID}</h2><table>
+                    <tr><th>站牌ID</th><th>預估到站</th><th>去返程</th></tr>`;
+                data.ETA.forEach(r => {
+                    html += `<tr>
+                        <td>${r.StopID}</td>
+                        <td>${r.EstimateTime}</td>
+                        <td>${r.GoBack}</td>
+                    </tr>`;
+                });
+                html += "</table>";
+                resultDiv.innerHTML = html;
+            } catch (e) {
+                resultDiv.innerHTML = `<p class="error">${e.message}</p>`;
+            }
+        }
     </script>
 </body>
 </html>
