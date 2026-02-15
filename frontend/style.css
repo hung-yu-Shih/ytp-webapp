@@ -1,0 +1,48 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    width: 360px;       /* 固定寬度 */
+    height: 640px;      /* 固定高度 */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    text-align: center;
+    overflow: auto;     /* 內容超出可以滾動 */
+}
+
+input {
+    width: 80%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    background: #4CAF50;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #45a049;
+}
+
+#output {
+    margin-top: 15px;
+    font-weight: bold;
+    color: #333;
+    word-wrap: break-word;
+}

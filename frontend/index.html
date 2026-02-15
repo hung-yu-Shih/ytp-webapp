@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=360, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>簡單 AI Web App</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>AI 文字反轉</h1>
+        <input type="text" id="userInput" placeholder="輸入文字">
+        <button onclick="sendText()">送出</button>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        async function sendText() {
+            const text = document.getElementById('userInput').value;
+            if (!text) return;
+            const res = await fetch(`/predict?text=${encodeURIComponent(text)}`);
+            const data = await res.json();
+            document.getElementById('output').innerText = data.output;
+        }
+    </script>
+</body>
+</html>
