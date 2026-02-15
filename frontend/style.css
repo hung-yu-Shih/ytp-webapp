@@ -1,40 +1,86 @@
-body {
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+/* 全域樣式 */
+* {
     margin: 0;
-    background-color: #f2f2f2;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Noto Sans TC', sans-serif;
 }
 
-.container {
+body {
+    background-color: #f4f4f9;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header {
+    background-color: #4CAF50;
+    color: white;
     text-align: center;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 400px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    padding: 2rem 1rem;
 }
 
-input {
-    width: 80%;
-    padding: 8px;
-    margin: 10px 0;
-    border-radius: 5px;
+header h1 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+header p {
+    font-size: 1rem;
+}
+
+main {
+    flex: 1;
+    padding: 1rem;
+}
+
+.search-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.search-section input {
+    padding: 0.8rem;
+    font-size: 1rem;
+    border-radius: 0.5rem;
     border: 1px solid #ccc;
 }
 
-button {
-    padding: 8px 16px;
+.search-section button {
+    padding: 0.8rem;
+    font-size: 1rem;
     border: none;
+    border-radius: 0.5rem;
     background-color: #4CAF50;
     color: white;
-    border-radius: 5px;
     cursor: pointer;
+    transition: 0.3s;
 }
 
-button:hover {
+.search-section button:hover {
     background-color: #45a049;
+}
+
+.result-section {
+    background-color: white;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
+.result-section h2 {
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+footer {
+    background-color: #eee;
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.9rem;
 }
