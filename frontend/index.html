@@ -10,73 +10,122 @@
     <!-- 右側滑出設定面板 -->
     <div id="settingsPanel" class="settings-panel">
         <h3>設定</h3>
+
+        <!-- 暗色模式 -->
         <label class="switch">
             <input type="checkbox" id="darkModeToggle">
             <span class="slider"></span>
             暗色模式
         </label>
+
+        <!-- 語言選擇 -->
+        <label for="languageSelect">語言</label>
+        <select id="languageSelect">
+            <option value="zh">中文</option>
+            <option value="en">English</option>
+            <option value="ja">日本語</option>
+            <option value="ko">한국어</option>
+        </select>
+
         <button id="closeSettings">關閉</button>
     </div>
 
     <div class="container">
         <header>
-            <h1>AI 台北行旅工具</h1>
+            <h1 id="title">AI 台北行旅工具</h1>
             <button id="settingsBtn">⚙️</button>
         </header>
 
         <main>
             <input type="text" id="queryInput" placeholder="輸入你想去的景點">
-            <button onclick="showItinerary()">生成行程</button>
+            <button onclick="showItinerary()" id="generateBtn">生成行程</button>
             <div id="result">行程結果會顯示在這裡</div>
         </main>
     </div>
 
-    <script>
-        // 滑出設定面板
-        const settingsBtn = document.getElementById("settingsBtn");
-        const settingsPanel = document.getElementById("settingsPanel");
-        const closeSettings = document.getElementById("closeSettings");
+<script>
+    // ------------------ 設定面板控制 ------------------
+    const settingsBtn = document.getElementById("settingsBtn");
+    const settingsPanel = document.getElementById("settingsPanel");
+    const closeSettings = document.getElementById("closeSettings");
 
-        settingsBtn.addEventListener("click", () => {
-            settingsPanel.classList.add("open");
-        });
+    settingsBtn.addEventListener("click", () => {
+        settingsPanel.classList.add("open");
+    });
+    closeSettings.addEventListener("click", () => {
+        settingsPanel.classList.remove("open");
+    });
 
-        closeSettings.addEventListener("click", () => {
-            settingsPanel.classList.remove("open");
-        });
+    // ------------------ 暗色模式 ------------------
+    const toggle = document.getElementById("darkModeToggle");
+    if(localStorage.getItem("darkMode") === "true"){
+        document.body.classList.add("dark");
+        toggle.checked = true;
+    }
 
-        // 暗色模式
-        const toggle = document.getElementById("darkModeToggle");
-        const darkModeSetting = localStorage.getItem("darkMode");
-        if(darkModeSetting === "true"){
-            document.body.classList.add("dark");
-            toggle.checked = true;
+    toggle.addEventListener("change", () => {
+        document.body.classList.toggle("dark", toggle.checked);
+        localStorage.setItem("darkMode", toggle.checked);
+    });
+
+    // ------------------ 語言選擇 ------------------
+    const languageSelect = document.getElementById("languageSelect");
+    const title = document.getElementById("title");
+    const generateBtn = document.getElementById("generateBtn");
+    const queryInput = document.getElementById("queryInput");
+
+    // 讀取存檔語言
+    const lang = localStorage.getItem("language") || "zh";
+    languageSelect.value = lang;
+    setLanguage(lang);
+
+    languageSelect.addEventListener("change", () => {
+        const lang = languageSelect.value;
+        setLanguage(lang);
+        localStorage.setItem("language", lang);
+    });
+
+    function setLanguage(lang){
+        const texts = {
+            zh: { title: "AI 台北行旅工具", placeholder: "輸入你想去的景點", generate: "生成行程", resultEmpty: "行程結果會顯示在這裡" },
+            en: { title: "AI Taipei Travel Tool", placeholder: "Enter your destination", generate: "Generate Itinerary", resultEmpty: "Itinerary will appear here" },
+            ja: { title: "AI 台北旅行ツール", placeholder: "行きたい場所を入力", generate: "行程を生成", resultEmpty: "行程結果がここに表示されます" },
+            ko: { title: "AI 타이베이 여행 도구", placeholder: "가고 싶은 장소 입력", generate: "일정 생성", resultEmpty: "여행 일정이 여기에 표시됩니다" }
+        };
+        const t = texts[lang];
+        title.innerText = t.title;
+        queryInput.placeholder = t.placeholder;
+        generateBtn.innerText = t.generate;
+        document.getElementById("result").innerText = t.resultEmpty;
+    }
+
+    // ------------------ 模擬行程生成 ------------------
+    function showItinerary() {
+        const query = queryInput.value.trim();
+        const resultDiv = document.getElementById("result");
+        if(!query){
+            resultDiv.innerHTML = "<span class='error'>請輸入景點名稱</span>";
+            return;
         }
 
-        toggle.addEventListener("change", () => {
-            document.body.classList.toggle("dark", toggle.checked);
-            localStorage.setItem("darkMode", toggle.checked);
-        });
+        const lang = languageSelect.value;
+        const scheduleTexts = {
+            zh: ["出發前往", "享用當地美食", "參觀博物館或特色景點", "返回住宿地"],
+            en: ["Depart to", "Enjoy local food", "Visit museums or landmarks", "Return to hotel"],
+            ja: ["出発", "地元の料理を楽しむ", "博物館や観光地を訪問", "宿泊先に戻る"],
+            ko: ["출발", "현지 음식 즐기기", "박물관이나 명소 방문", "숙소로 돌아가기"]
+        };
 
-        // 模擬行程生成
-        function showItinerary() {
-            const query = document.getElementById("queryInput").value.trim();
-            const resultDiv = document.getElementById("result");
-            if (!query) {
-                resultDiv.innerHTML = "<span class='error'>請輸入景點名稱</span>";
-                return;
-            }
+        const times = ["09:00", "11:00", "13:00", "16:00"];
+        const items = scheduleTexts[lang];
 
-            resultDiv.innerHTML = `
-                <h3>建議行程：${query}</h3>
-                <ul>
-                    <li>09:00 出發前往 ${query}</li>
-                    <li>11:00 享用當地美食</li>
-                    <li>13:00 參觀博物館或特色景點</li>
-                    <li>16:00 返回住宿地</li>
-                </ul>
-            `;
+        let html = `<h3>${query}</h3><ul>`;
+        for(let i=0;i<items.length;i++){
+            html += `<li>${times[i]} ${items[i]} ${i===0?query:""}</li>`;
         }
-    </script>
+        html += "</ul>";
+        resultDiv.innerHTML = html;
+    }
+</script>
 </body>
 </html>
