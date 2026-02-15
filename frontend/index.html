@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <title>AI 台北行旅工具</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-sA+eZxaMJtY7HbZglS2oivkBzC2J6e6vQxI4nYbpryU=" crossorigin=""/>
+
 <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -28,22 +32,21 @@
             <input type="text" id="queryInput" placeholder="輸入你想去的景點">
             <button onclick="showItinerary()">生成行程</button>
             <div id="result">行程結果會顯示在這裡</div>
+            <div id="map"></div>
         </main>
     </div>
 
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-o9N1jUu6/QCN4emQk+ChKnJrKULwZfG+Gk7W0CGt6uw=" crossorigin=""></script>
+
     <script>
-        // 滑出設定面板
+        // ------------------- 設定面板 -------------------
         const settingsBtn = document.getElementById("settingsBtn");
         const settingsPanel = document.getElementById("settingsPanel");
         const closeSettings = document.getElementById("closeSettings");
 
-        settingsBtn.addEventListener("click", () => {
-            settingsPanel.classList.add("open");
-        });
-
-        closeSettings.addEventListener("click", () => {
-            settingsPanel.classList.remove("open");
-        });
+        settingsBtn.addEventListener("click", () => settingsPanel.classList.add("open"));
+        closeSettings.addEventListener("click", () => settingsPanel.classList.remove("open"));
 
         // 暗色模式
         const toggle = document.getElementById("darkModeToggle");
@@ -52,13 +55,34 @@
             document.body.classList.add("dark");
             toggle.checked = true;
         }
-
         toggle.addEventListener("change", () => {
             document.body.classList.toggle("dark", toggle.checked);
             localStorage.setItem("darkMode", toggle.checked);
         });
 
-        // 模擬行程生成
+        // ------------------- 地圖初始化 -------------------
+        const map = L.map('map').setView([25.0330, 121.5654], 13); // 預設台北市中心
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        let userMarker = null;
+
+        // 定位使用者
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(pos => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                map.setView([lat, lng], 15);
+                userMarker = L.marker([lat, lng]).addTo(map).bindPopup("你的位置").openPopup();
+            }, err => {
+                console.warn("無法取得定位:", err.message);
+            });
+        }
+
+        // ------------------- 模擬行程生成 -------------------
         function showItinerary() {
             const query = document.getElementById("queryInput").value.trim();
             const resultDiv = document.getElementById("result");
@@ -76,6 +100,16 @@
                     <li>16:00 返回住宿地</li>
                 </ul>
             `;
+
+            // 假設景點位置（示範使用台北101座標）
+            const lat = 25.033964;
+            const lng = 121.564468;
+
+            L.marker([lat, lng]).addTo(map)
+                .bindPopup(`${query}`)
+                .openPopup();
+
+            map.setView([lat, lng], 15);
         }
     </script>
 </body>
