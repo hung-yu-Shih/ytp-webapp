@@ -14,7 +14,7 @@ app.add_middleware(
 )
 
 # 靜態檔案
-app.mount("/static", StaticFiles(directory="../frontend"), name="static")
+app.mount("/static", StaticFiles(directory="../frontend"), name="static") 
 
 GZ_URL = "https://tcgbusfs.blob.core.windows.net/blobbus/GetEstimateTime.gz"
 
