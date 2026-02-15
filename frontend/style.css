@@ -20,100 +20,157 @@ body {
     font-family: Arial, sans-serif;
     background: var(--bg-color);
     color: var(--text-color);
+    margin: 0;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
-    margin: 0;
     padding-top: 20px;
 }
 
 .container {
-    background: var(--container-bg);
     width: 100%;
     max-width: 400px;
-    padding: 25px 20px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    background: var(--container-bg);
     border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    padding: 20px;
     box-sizing: border-box;
 }
 
-h1 {
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 26px;
-    color: var(--text-color);
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.settings {
-    position: relative;
-    margin-bottom: 15px;
-    text-align: right;
+header h1 {
+    font-size: 1.4em;
+    margin: 0;
 }
 
 #settingsBtn {
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    padding: 5px 10px;
-    transition: color 0.2s;
-}
-
-#settingsBtn:hover { color: #0056b3; }
-
-.settings-panel {
-    display: none;
-    position: absolute;
-    top: 35px;
-    right: 0;
-    background: var(--result-bg);
-    border-radius: 8px;
-    padding: 10px 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    font-size: 14px;
-}
-
-.settings-panel.open { display: block; }
-
-input {
-    padding: 12px;
-    width: 100%;
-    font-size: 16px;
-    margin-bottom: 12px;
-    box-sizing: border-box;
-    background: var(--result-bg);
-    color: var(--text-color);
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    transition: border 0.2s;
-}
-
-input:focus { border-color: var(--button-bg); outline: none; }
-
-button {
-    padding: 12px;
-    width: 100%;
-    font-size: 16px;
-    cursor: pointer;
-    margin-bottom: 12px;
     background: var(--button-bg);
     color: var(--button-color);
     border: none;
     border-radius: 8px;
-    transition: background 0.2s;
+    padding: 5px 10px;
+    font-size: 1.2em;
+    cursor: pointer;
 }
 
-button:hover { background: darken(var(--button-bg), 10%); }
+main {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+input[type="text"] {
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    background: var(--result-bg);
+    color: var(--text-color);
+}
+
+button {
+    padding: 12px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    background: var(--button-bg);
+    color: var(--button-color);
+    cursor: pointer;
+}
 
 #result {
     margin-top: 15px;
-    padding: 15px;
     background: var(--result-bg);
     border-radius: 8px;
+    padding: 12px;
     min-height: 80px;
-    line-height: 1.6;
 }
 
-#result ul { padding-left: 20px; }
-#result li { margin-bottom: 8px; }
-#result h3 { margin-bottom: 10px; }
+.error {
+    color: #ff4d4f;
+}
+
+/* 右側滑出設定面板 */
+.settings-panel {
+    position: fixed;
+    top: 0;
+    right: -250px;
+    width: 250px;
+    height: 100%;
+    background: var(--container-bg);
+    box-shadow: -4px 0 20px rgba(0,0,0,0.3);
+    padding: 20px;
+    box-sizing: border-box;
+    transition: right 0.3s ease;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.settings-panel.open {
+    right: 0;
+}
+
+.settings-panel h3 {
+    margin: 0;
+    font-size: 1.2em;
+    text-align: center;
+}
+
+.settings-panel .switch {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+/* 關閉按鈕 */
+#closeSettings {
+    margin-top: auto;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background: var(--button-bg);
+    color: var(--button-color);
+    cursor: pointer;
+}
+
+/* 滑動開關美化 */
+.switch input {
+    display: none;
+}
+
+.switch .slider {
+    width: 40px;
+    height: 20px;
+    background: #ccc;
+    border-radius: 12px;
+    position: relative;
+    display: inline-block;
+}
+
+.switch .slider::before {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 1px;
+    top: 1px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+.switch input:checked + .slider::before {
+    transform: translateX(20px);
+}
+
+.switch input:checked + .slider {
+    background: #4caf50;
+}
