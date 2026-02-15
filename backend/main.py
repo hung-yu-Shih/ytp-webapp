@@ -16,7 +16,7 @@ app.add_middleware(
 )
 
 # 靜態檔案
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent
 frontend_dir = BASE_DIR / "frontend"
 
 if not frontend_dir.exists():
@@ -58,7 +58,7 @@ def get_bus_eta(route_id: str):
     result = []
 
     for row in data:
-        if str(row["RouteID"]) == str(route_id):  # RouteID 是數字，轉字串比對
+        if str(row["RouteID"]) == str(route_id):  # RouteID 是數字或文字，轉字串比對
             etime_str = row["EstimateTime"]
             # 特殊代碼對應文字
             if etime_str in ["-1", "-2", "-3", "-4"]:
