@@ -14,7 +14,13 @@ app.add_middleware(
 )
 
 # 靜態檔案
-app.mount("/static", StaticFiles(directory="../frontend"), name="static") 
+BASE_DIR = Path(__file__).resolve().parent.parent  # backend 的上一層
+frontend_dir = BASE_DIR / "frontend"  # 指向 frontend 資料夾
+
+if not frontend_dir.exists():
+    raise RuntimeError(f"找不到資料夾: {frontend_dir}")
+
+app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
 
 GZ_URL = "https://tcgbusfs.blob.core.windows.net/blobbus/GetEstimateTime.gz"
 
