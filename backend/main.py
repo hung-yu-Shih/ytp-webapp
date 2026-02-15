@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 import requests, gzip, csv, io
 from pathlib import Path
 
@@ -18,10 +18,8 @@ app.add_middleware(
 # 靜態檔案
 BASE_DIR = Path(__file__).resolve().parent.parent
 frontend_dir = BASE_DIR / "frontend"
-
 if not frontend_dir.exists():
     raise RuntimeError(f"找不到資料夾: {frontend_dir}")
-
 app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
 
 # 首頁
@@ -32,41 +30,41 @@ async def read_index():
         return HTMLResponse(content="<h1>index.html 不存在</h1>", status_code=404)
     return HTMLResponse(content=index_file.read_text(encoding="utf-8"))
 
-# API JSON 範例
-@app.get("/api/home")
-def api_home():
-    return {"message": "歡迎使用臺北市公車預估到站時間 API"}
-
+# 公車資料 URL
 GZ_URL = "https://tcgbusfs.blob.core.windows.net/blobbus/GetEstimateTime.gz"
+ROUTE_URL = "https://tcgbusfs.blob.core.windows.net/blobbus/GetBusRoute.gz"
 
+# 下載 RouteID ↔ RouteName 對照表
+def fetch_route_map():
+    resp = requests.get(ROUTE_URL)
+    if resp.status_code != 200:
+        raise HTTPException(status_code=500, detail="下載 Route 資料失敗")
+    gz = gzip.open(io.BytesIO(resp.content), mode='rt', encoding='utf-8')
+    reader = csv.DictReader(gz, delimiter='\t')
+    route_map = {}
+    for row in reader:
+        route_map[row["RouteName"]] = row["RouteID"]
+    return route_map
+
+# 下載 ETA 資料
 def fetch_bus_data():
     resp = requests.get(GZ_URL)
     if resp.status_code != 200:
-        raise HTTPException(status_code=500, detail="下載資料失敗")
+        raise HTTPException(status_code=500, detail="下載 ETA 資料失敗")
     gz = gzip.open(io.BytesIO(resp.content), mode='rt', encoding='utf-8')
     reader = csv.DictReader(gz, delimiter='\t')
-    return list(reader)
+    data = list(reader)
+    return data
 
-@app.get("/api/bus/{route_name}")
+@app.get("/bus/{route_name}")
 def get_bus_eta(route_name: str):
-    # 先下載路線清單 API
-    route_resp = requests.get(ROUTE_LIST_API_URL)
-    route_data = route_resp.json()["result"]["results"]
-
-    # 找對應的 RouteID
-    route_id = None
-    for r in route_data:
-        if r["RouteName"] == route_name:
-            route_id = r["RouteID"]
-            break
-
-    if not route_id:
-        raise HTTPException(status_code=404, detail="找不到路線名稱")
-
-    # 下載 ETA CSV
-    eta = fetch_bus_data()
+    route_map = fetch_route_map()
+    if route_name not in route_map:
+        raise HTTPException(status_code=404, detail="找不到該公車路線")
+    route_id = route_map[route_name]
+    data = fetch_bus_data()
     result = []
-    for row in eta:
+    for row in data:
         if row["RouteID"] == route_id:
             etime = int(row["EstimateTime"])
             if etime >= 0:
@@ -79,11 +77,10 @@ def get_bus_eta(route_name: str):
                     -4: "今日未營運"
                 }.get(etime, "未知")
             result.append({
-                "StopName": row["StopName"],   # 用 StopName 比 StopID 更直觀
+                "StopID": row["StopID"],
                 "EstimateTime": time_str,
                 "GoBack": row["GoBack"]
             })
     if not result:
         raise HTTPException(status_code=404, detail="找不到該路線資料")
     return {"RouteName": route_name, "ETA": result}
-
