@@ -1,26 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>簡單 AI WebApp</title>
-<link rel="stylesheet" href="/static/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI觀光工具｜台北</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-<div class="container">
-    <h1>AI 文字反轉</h1>
-    <input type="text" id="userInput" placeholder="輸入文字">
-    <button onclick="sendText()">送出</button>
-    <p>結果: <span id="result"></span></p>
-</div>
+    <header>
+        <h1>AI觀光工具｜台北</h1>
+        <p>智能推薦景點與行程規劃</p>
+    </header>
 
-<script>
-async function sendText() {
-    const text = document.getElementById("userInput").value;
-    const res = await fetch(`/predict?text=${encodeURIComponent(text)}`);
-    const data = await res.json();
-    document.getElementById("result").textContent = data.output;
-}
-</script>
+    <main>
+        <section class="search-section">
+            <input type="text" id="query" placeholder="輸入景點或活動">
+            <button onclick="predict()">開始查詢</button>
+        </section>
+
+        <section class="result-section">
+            <h2>推薦結果</h2>
+            <div id="results"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2026 AI觀光工具</p>
+    </footer>
+
+    <script>
+        async function predict() {
+            const text = document.getElementById("query").value;
+            const res = await fetch(`/predict?text=${encodeURIComponent(text)}`);
+            const data = await res.json();
+            document.getElementById("results").innerText = JSON.stringify(data, null, 2);
+        }
+    </script>
 </body>
 </html>
