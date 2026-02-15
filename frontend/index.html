@@ -20,10 +20,10 @@
             const resultDiv = document.getElementById("result");
             resultDiv.innerHTML = "查詢中...";
             try {
-                const res = await fetch(`/bus/${encodeURIComponent(route)}`);
+                const res = await fetch(`/api/bus/${encodeURIComponent(route)}`);
                 if (!res.ok) throw new Error("找不到資料");
                 const data = await res.json();
-                let html = `<h2>路線: ${data.RouteName}</h2>`;
+                let html = `<h2>路線: ${data.RouteID}</h2>`;
                 html += "<table><tr><th>StopID</th><th>ETA</th><th>去返程</th></tr>";
                 data.ETA.forEach(row => {
                     html += `<tr>
