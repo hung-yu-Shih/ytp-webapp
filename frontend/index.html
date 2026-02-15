@@ -2,59 +2,26 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI台北觀光助手</title>
+    <title>台北 AI 觀光工具</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <header>
-        <h1>AI 台北觀光助手</h1>
-        <p>輸入你想去的景點或活動類型，例如「親子」「夜市」「美食」</p>
-    </header>
-
-    <main>
-        <div class="input-container">
-            <input type="text" id="query" placeholder="輸入景點需求...">
-            <button onclick="predict()">搜尋</button>
-        </div>
-
-        <div id="results" class="card-container">
-            <!-- AI推薦結果會出現在這裡 -->
-        </div>
-    </main>
-
-    <footer>
-        <p>資料來源：<a href="https://data.taipei/" target="_blank">台北市資料大平台</a></p>
-    </footer>
+    <h1>歡迎來到台北 AI 觀光工具</h1>
+    <button id="load">載入景點資訊</button>
+    <ul id="parks"></ul>
 
     <script>
-        async function predict() {
-            const text = document.getElementById("query").value.trim();
-            if (!text) return alert("請輸入需求文字！");
-            
-            const res = await fetch(`/predict?text=${encodeURIComponent(text)}`);
-            if (!res.ok) return alert("伺服器錯誤，請稍後再試");
-            
+        document.getElementById("load").onclick = async () => {
+            const res = await fetch("/api/parks");
             const data = await res.json();
-            const container = document.getElementById("results");
-            container.innerHTML = "";
-
-            if (data.length === 0) {
-                container.innerHTML = "<p>找不到符合的景點</p>";
-                return;
-            }
-
-            data.forEach(item => {
-                const card = document.createElement("div");
-                card.className = "card";
-                card.innerHTML = `
-                    <h3>${item.name}</h3>
-                    <p>${item.desc}</p>
-                    <small>相似度: ${item.score.toFixed(2)}</small>
-                `;
-                container.appendChild(card);
+            const list = document.getElementById("parks");
+            list.innerHTML = "";
+            data.parks.forEach(p => {
+                const li = document.createElement("li");
+                li.textContent = `${p.name} - ${p.address}`;
+                list.appendChild(li);
             });
-        }
+        };
     </script>
 </body>
 </html>
