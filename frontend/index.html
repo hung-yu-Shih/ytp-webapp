@@ -2,10 +2,37 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>測試 WebApp</title>
+    <title>AI 台北行旅工具</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <h1>🎉 WebApp 成功啟動！</h1>
+    <div class="container">
+        <h1>AI 台北行旅工具</h1>
+        <input type="text" id="queryInput" placeholder="輸入你想去的景點">
+        <button onclick="showItinerary()">查詢行程</button>
+        <div id="result">行程結果會顯示在這裡</div>
+    </div>
+
+    <script>
+        function showItinerary() {
+            const query = document.getElementById("queryInput").value.trim();
+            const resultDiv = document.getElementById("result");
+            if (!query) {
+                resultDiv.innerHTML = "<span style='color:red'>請輸入景點名稱</span>";
+                return;
+            }
+
+            // 模擬 AI 行程生成
+            resultDiv.innerHTML = `
+                <h3>建議行程：${query}</h3>
+                <ul>
+                    <li>09:00 出發前往 ${query}</li>
+                    <li>11:00 享用當地美食</li>
+                    <li>13:00 參觀博物館或特色景點</li>
+                    <li>16:00 返回住宿地</li>
+                </ul>
+            `;
+        }
+    </script>
 </body>
 </html>
