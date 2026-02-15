@@ -49,11 +49,25 @@ def fetch_bus_data():
 
 @app.get("/api/bus/{route_name}")
 def get_bus_eta(route_name: str):
-    data = fetch_bus_data()
+    # 先下載路線清單 API
+    route_resp = requests.get(ROUTE_LIST_API_URL)
+    route_data = route_resp.json()["result"]["results"]
+
+    # 找對應的 RouteID
+    route_id = None
+    for r in route_data:
+        if r["RouteName"] == route_name:
+            route_id = r["RouteID"]
+            break
+
+    if not route_id:
+        raise HTTPException(status_code=404, detail="找不到路線名稱")
+
+    # 下載 ETA CSV
+    eta = fetch_bus_data()
     result = []
-    route_name = route_name.upper()  # 方便大小寫不敏感
-    for row in data:
-        if row["RouteName"].upper() == route_name:
+    for row in eta:
+        if row["RouteID"] == route_id:
             etime = int(row["EstimateTime"])
             if etime >= 0:
                 time_str = f"{etime//60}分{etime%60}秒"
