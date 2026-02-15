@@ -99,8 +99,8 @@ button {
 .settings-panel {
     position: fixed;
     top: 0;
-    right: -250px;
-    width: 250px;
+    right: -260px;
+    width: 260px;
     height: 100%;
     background: var(--container-bg);
     box-shadow: -4px 0 20px rgba(0,0,0,0.3);
@@ -123,13 +123,6 @@ button {
     text-align: center;
 }
 
-.settings-panel .switch {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-}
-
 /* 關閉按鈕 */
 #closeSettings {
     margin-top: auto;
@@ -142,10 +135,13 @@ button {
 }
 
 /* 滑動開關美化 */
-.switch input {
-    display: none;
+.switch {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
 }
-
+.switch input { display: none; }
 .switch .slider {
     width: 40px;
     height: 20px;
@@ -154,7 +150,6 @@ button {
     position: relative;
     display: inline-block;
 }
-
 .switch .slider::before {
     content: "";
     position: absolute;
@@ -166,11 +161,15 @@ button {
     border-radius: 50%;
     transition: 0.3s;
 }
-
 .switch input:checked + .slider::before {
     transform: translateX(20px);
 }
-
 .switch input:checked + .slider {
     background: #4caf50;
 }
+
+/* 語言下拉 */
+select {
+    padding: 8px;
+    font-size: 16px;
+    border-radius:
