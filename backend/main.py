@@ -1,17 +1,19 @@
+import os
 from fastapi import FastAPI
-from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-import requests
+from fastapi.responses import FileResponse
 
-app = FastAPI(title="台北 AI 觀光工具")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # 專案根目錄
+FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 
-# 將 frontend 資料夾掛載為 /static
-app.mount("/static", StaticFiles(directory="../frontend"), name="static")
+app = FastAPI()
 
-# 首頁
+app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
+
 @app.get("/")
 def read_index():
-    return FileResponse("../frontend/index.html")
+    return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
+
 
 # 範例 API: 抓取台北市資料大平台資料
 @app.get("/api/parks")
