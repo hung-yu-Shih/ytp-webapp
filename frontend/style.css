@@ -95,81 +95,16 @@ button {
     color: #ff4d4f;
 }
 
+/* 地圖 */
+#map {
+    width: 100%;
+    height: 250px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
 /* 右側滑出設定面板 */
 .settings-panel {
     position: fixed;
     top: 0;
-    right: -260px;
-    width: 260px;
-    height: 100%;
-    background: var(--container-bg);
-    box-shadow: -4px 0 20px rgba(0,0,0,0.3);
-    padding: 20px;
-    box-sizing: border-box;
-    transition: right 0.3s ease;
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.settings-panel.open {
-    right: 0;
-}
-
-.settings-panel h3 {
-    margin: 0;
-    font-size: 1.2em;
-    text-align: center;
-}
-
-/* 關閉按鈕 */
-#closeSettings {
-    margin-top: auto;
-    padding: 10px;
-    border: none;
-    border-radius: 8px;
-    background: var(--button-bg);
-    color: var(--button-color);
-    cursor: pointer;
-}
-
-/* 滑動開關美化 */
-.switch {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-}
-.switch input { display: none; }
-.switch .slider {
-    width: 40px;
-    height: 20px;
-    background: #ccc;
-    border-radius: 12px;
-    position: relative;
-    display: inline-block;
-}
-.switch .slider::before {
-    content: "";
-    position: absolute;
-    width: 18px;
-    height: 18px;
-    left: 1px;
-    top: 1px;
-    background: white;
-    border-radius: 50%;
-    transition: 0.3s;
-}
-.switch input:checked + .slider::before {
-    transform: translateX(20px);
-}
-.switch input:checked + .slider {
-    background: #4caf50;
-}
-
-/* 語言下拉 */
-select {
-    padding: 8px;
-    font-size: 16px;
-    border-radius:
+    right:
