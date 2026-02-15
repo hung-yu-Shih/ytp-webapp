@@ -3,37 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI觀光工具｜台北</title>
+    <title>AI台北觀光助手</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <header>
-        <h1>AI觀光工具｜台北</h1>
-        <p>智能推薦景點與行程規劃</p>
+        <h1>AI 台北觀光助手</h1>
+        <p>輸入你想去的景點或活動類型，例如「親子」「夜市」「美食」</p>
     </header>
 
     <main>
-        <section class="search-section">
-            <input type="text" id="query" placeholder="輸入景點或活動">
-            <button onclick="predict()">開始查詢</button>
-        </section>
+        <div class="input-container">
+            <input type="text" id="query" placeholder="輸入景點需求...">
+            <button onclick="predict()">搜尋</button>
+        </div>
 
-        <section class="result-section">
-            <h2>推薦結果</h2>
-            <div id="results"></div>
-        </section>
+        <div id="results" class="card-container">
+            <!-- AI推薦結果會出現在這裡 -->
+        </div>
     </main>
 
     <footer>
-        <p>© 2026 AI觀光工具</p>
+        <p>資料來源：<a href="https://data.taipei/" target="_blank">台北市資料大平台</a></p>
     </footer>
 
     <script>
         async function predict() {
-            const text = document.getElementById("query").value;
+            const text = document.getElementById("query").value.trim();
+            if (!text) return alert("請輸入需求文字！");
+            
             const res = await fetch(`/predict?text=${encodeURIComponent(text)}`);
+            if (!res.ok) return alert("伺服器錯誤，請稍後再試");
+            
             const data = await res.json();
-            document.getElementById("results").innerText = JSON.stringify(data, null, 2);
+            const container = document.getElementById("results");
+            container.innerHTML = "";
+
+            if (data.length === 0) {
+                container.innerHTML = "<p>找不到符合的景點</p>";
+                return;
+            }
+
+            data.forEach(item => {
+                const card = document.createElement("div");
+                card.className = "card";
+                card.innerHTML = `
+                    <h3>${item.name}</h3>
+                    <p>${item.desc}</p>
+                    <small>相似度: ${item.score.toFixed(2)}</small>
+                `;
+                container.appendChild(card);
+            });
         }
     </script>
 </body>
