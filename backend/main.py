@@ -6,7 +6,7 @@ from pathlib import Path
 app = FastAPI(title="測試 WebApp")
 
 # 前端資料夾，嘗試掛載，如果沒找到就跳過
-frontend_dir = Path(__file__).parent / "frontend"
+frontend_dir = Path(__file__).parent.parent / "frontend"
 if frontend_dir.exists():
     app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
 else:
