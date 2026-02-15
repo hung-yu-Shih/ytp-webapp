@@ -1,51 +1,72 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <title>AI 台北行旅工具</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>AI 台北行旅工具</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+    <!-- 右側滑出設定面板 -->
+    <div id="settingsPanel" class="settings-panel">
+        <h3>設定</h3>
+        <label class="switch">
+            <input type="checkbox" id="darkModeToggle">
+            <span class="slider"></span>
+            暗色模式
+        </label>
+        <button id="closeSettings">關閉</button>
+    </div>
+
     <div class="container">
-        <h1>AI 台北行旅工具</h1>
+        <header>
+            <h1>AI 台北行旅工具</h1>
+            <button id="settingsBtn">⚙️</button>
+        </header>
 
-        <div class="settings">
-            <button id="settingsBtn">⚙️ 設定</button>
-            <div id="settingsPanel" class="settings-panel">
-                <label>
-                    <input type="checkbox" id="darkModeToggle"> 暗色模式
-                </label>
-            </div>
-        </div>
-
-        <input type="text" id="queryInput" placeholder="輸入你想去的景點">
-        <button onclick="showItinerary()">查詢行程</button>
-        <div id="result">行程結果會顯示在這裡</div>
+        <main>
+            <input type="text" id="queryInput" placeholder="輸入你想去的景點">
+            <button onclick="showItinerary()">生成行程</button>
+            <div id="result">行程結果會顯示在這裡</div>
+        </main>
     </div>
 
     <script>
+        // 滑出設定面板
         const settingsBtn = document.getElementById("settingsBtn");
         const settingsPanel = document.getElementById("settingsPanel");
-        settingsBtn.addEventListener("click", () => settingsPanel.classList.toggle("open"));
+        const closeSettings = document.getElementById("closeSettings");
 
+        settingsBtn.addEventListener("click", () => {
+            settingsPanel.classList.add("open");
+        });
+
+        closeSettings.addEventListener("click", () => {
+            settingsPanel.classList.remove("open");
+        });
+
+        // 暗色模式
         const toggle = document.getElementById("darkModeToggle");
-        if (localStorage.getItem("darkMode") === "true") {
+        const darkModeSetting = localStorage.getItem("darkMode");
+        if(darkModeSetting === "true"){
             document.body.classList.add("dark");
             toggle.checked = true;
         }
+
         toggle.addEventListener("change", () => {
             document.body.classList.toggle("dark", toggle.checked);
             localStorage.setItem("darkMode", toggle.checked);
         });
 
+        // 模擬行程生成
         function showItinerary() {
             const query = document.getElementById("queryInput").value.trim();
             const resultDiv = document.getElementById("result");
             if (!query) {
-                resultDiv.innerHTML = "<span style='color:red'>請輸入景點名稱</span>";
+                resultDiv.innerHTML = "<span class='error'>請輸入景點名稱</span>";
                 return;
             }
+
             resultDiv.innerHTML = `
                 <h3>建議行程：${query}</h3>
                 <ul>
