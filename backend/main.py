@@ -2,6 +2,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import requests, gzip, csv, io
+from pathlib import Path
+
 
 app = FastAPI(title="臺北市公車 ETA API")
 
