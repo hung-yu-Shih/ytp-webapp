@@ -4,11 +4,10 @@
 <meta charset="UTF-8">
 <title>AI 台北行旅工具</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-<!-- Leaflet CSS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-sA+eZxaMJtY7HbZglS2oivkBzC2J6e6vQxI4nYbpryU=" crossorigin=""/>
-
 <link rel="stylesheet" href="/static/style.css">
+
+<!-- Leaflet 地圖 CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
     <!-- 右側滑出設定面板 -->
@@ -31,16 +30,19 @@
         <main>
             <input type="text" id="queryInput" placeholder="輸入你想去的景點">
             <button onclick="showItinerary()">生成行程</button>
-            <div id="result">行程結果會顯示在這裡</div>
+
+            <!-- 地圖容器 -->
             <div id="map"></div>
+
+            <div id="result">行程結果會顯示在這裡</div>
         </main>
     </div>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-o9N1jUu6/QCN4emQk+ChKnJrKULwZfG+Gk7W0CGt6uw=" crossorigin=""></script>
+    <!-- Leaflet 地圖 JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
     <script>
-        // ------------------- 設定面板 -------------------
+        // 滑出設定面板
         const settingsBtn = document.getElementById("settingsBtn");
         const settingsPanel = document.getElementById("settingsPanel");
         const closeSettings = document.getElementById("closeSettings");
@@ -60,29 +62,7 @@
             localStorage.setItem("darkMode", toggle.checked);
         });
 
-        // ------------------- 地圖初始化 -------------------
-        const map = L.map('map').setView([25.0330, 121.5654], 13); // 預設台北市中心
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap'
-        }).addTo(map);
-
-        let userMarker = null;
-
-        // 定位使用者
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(pos => {
-                const lat = pos.coords.latitude;
-                const lng = pos.coords.longitude;
-                map.setView([lat, lng], 15);
-                userMarker = L.marker([lat, lng]).addTo(map).bindPopup("你的位置").openPopup();
-            }, err => {
-                console.warn("無法取得定位:", err.message);
-            });
-        }
-
-        // ------------------- 模擬行程生成 -------------------
+        // 模擬行程生成
         function showItinerary() {
             const query = document.getElementById("queryInput").value.trim();
             const resultDiv = document.getElementById("result");
@@ -90,7 +70,6 @@
                 resultDiv.innerHTML = "<span class='error'>請輸入景點名稱</span>";
                 return;
             }
-
             resultDiv.innerHTML = `
                 <h3>建議行程：${query}</h3>
                 <ul>
@@ -100,16 +79,28 @@
                     <li>16:00 返回住宿地</li>
                 </ul>
             `;
+        }
 
-            // 假設景點位置（示範使用台北101座標）
-            const lat = 25.033964;
-            const lng = 121.564468;
+        // Leaflet 地圖初始化
+        const map = L.map('map').setView([25.0330, 121.5654], 15); // 預設台北101
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
 
-            L.marker([lat, lng]).addTo(map)
-                .bindPopup(`${query}`)
-                .openPopup();
-
-            map.setView([lat, lng], 15);
+        // 嘗試取得使用者位置
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(position => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                map.setView([lat, lng], 16);
+                L.marker([lat, lng]).addTo(map)
+                    .bindPopup("你的位置")
+                    .openPopup();
+            }, err => {
+                console.warn("無法取得位置:", err.message);
+            });
+        } else {
+            console.warn("你的瀏覽器不支援 Geolocation");
         }
     </script>
 </body>
