@@ -84,3 +84,17 @@ footer {
     padding: 1rem;
     font-size: 0.9rem;
 }
+
+.card-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.card {
+    padding: 1rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
