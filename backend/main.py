@@ -5,15 +5,17 @@ import os
 
 app = FastAPI()
 
-# 把 frontend 資料夾掛在 /static
-app.mount("/static", StaticFiles(directory="../frontend"), name="static")  # ❌ 這會出錯
+# backend/main.py 的目錄
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# 正確寫法：
-frontend_path = os.path.join(os.path.dirname(__file__), "../frontend")
-frontend_path = os.path.abspath(frontend_path)
+# frontend 絕對路徑
+FRONTEND_DIR = os.path.join(BASE_DIR, "../frontend")
+FRONTEND_DIR = os.path.abspath(FRONTEND_DIR)
 
-app.mount("/static", StaticFiles(directory=frontend_path), name="static")
+# 掛載 static
+app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
+# 根路由
 @app.get("/")
 async def root():
-    return FileResponse(os.path.join(frontend_path, "index.html"))
+    return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
