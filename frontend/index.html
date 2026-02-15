@@ -21,10 +21,20 @@
     </div>
 
     <script>
-        // 暗色模式切換
         const toggle = document.getElementById("darkModeToggle");
+
+        // 讀取 localStorage 設定
+        const darkModeSetting = localStorage.getItem("darkMode");
+        if (darkModeSetting === "true") {
+            document.body.classList.add("dark");
+            toggle.checked = true;
+        }
+
+        // 暗色模式切換
         toggle.addEventListener("change", () => {
             document.body.classList.toggle("dark", toggle.checked);
+            // 存到 localStorage
+            localStorage.setItem("darkMode", toggle.checked);
         });
 
         // 模擬 AI 行程生成
