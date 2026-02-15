@@ -15,18 +15,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 靜態檔案
+# 自動尋找 frontend 資料夾
 BASE_DIR = Path(__file__).resolve().parent
-frontend_dir = BASE_DIR / "frontend"
+frontend_dir = None
+for p in BASE_DIR.rglob("frontend"):
+    if p.is_dir():
+        frontend_dir = p
+        break
 
-if not frontend_dir.exists():
-    raise RuntimeError(f"找不到資料夾: {frontend_dir}")
-
-app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
+if not frontend_dir:
+    print("⚠️ 找不到 frontend 資料夾，靜態檔案與首頁會 404")
+else:
+    app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
 
 # 首頁
 @app.get("/", response_class=HTMLResponse)
 async def read_index():
+    if not frontend_dir:
+        return HTMLResponse(content="<h1>frontend 資料夾不存在</h1>", status_code=404)
     index_file = frontend_dir / "index.html"
     if not index_file.exists():
         return HTMLResponse(content="<h1>index.html 不存在</h1>", status_code=404)
@@ -43,8 +49,7 @@ def fetch_bus_data():
     
     gz = gzip.open(io.BytesIO(resp.content), mode='rt', encoding='utf-8')
     reader = csv.DictReader(gz, delimiter='\t')
-    data = list(reader)
-    return data
+    return list(reader)
 
 # API 範例首頁
 @app.get("/api")
@@ -58,9 +63,8 @@ def get_bus_eta(route_id: str):
     result = []
 
     for row in data:
-        if str(row["RouteID"]) == str(route_id):  # RouteID 是數字或文字，轉字串比對
+        if str(row["RouteID"]) == str(route_id):
             etime_str = row["EstimateTime"]
-            # 特殊代碼對應文字
             if etime_str in ["-1", "-2", "-3", "-4"]:
                 time_str = {
                     "-1": "尚未發車",
