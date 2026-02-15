@@ -47,12 +47,13 @@ def fetch_bus_data():
     reader = csv.DictReader(gz, delimiter='\t')
     return list(reader)
 
-@app.get("/api/bus/{route_id}")
-def get_bus_eta(route_id: str):
+@app.get("/api/bus/{route_name}")
+def get_bus_eta(route_name: str):
     data = fetch_bus_data()
     result = []
+    route_name = route_name.upper()  # 方便大小寫不敏感
     for row in data:
-        if row["RouteID"] == route_id:
+        if row["RouteName"].upper() == route_name:
             etime = int(row["EstimateTime"])
             if etime >= 0:
                 time_str = f"{etime//60}分{etime%60}秒"
@@ -64,10 +65,11 @@ def get_bus_eta(route_id: str):
                     -4: "今日未營運"
                 }.get(etime, "未知")
             result.append({
-                "StopID": row["StopID"],
+                "StopName": row["StopName"],   # 用 StopName 比 StopID 更直觀
                 "EstimateTime": time_str,
                 "GoBack": row["GoBack"]
             })
     if not result:
         raise HTTPException(status_code=404, detail="找不到該路線資料")
-    return {"RouteID": route_id, "ETA": result}
+    return {"RouteName": route_name, "ETA": result}
+
