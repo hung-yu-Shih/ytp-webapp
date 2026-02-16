@@ -1,15 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<title>AI 台北行旅工具</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<link rel="stylesheet" href="/static/style.css">
+    <meta charset="UTF-8">
+    <title>AI 台北行旅工具</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="/static/style.css">
 
-<!-- Firebase SDK -->
-<script type="module" src="https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js"></script>
-<script type="module" src="https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js"></script>
-<script type="module" src="https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js"></script>
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
@@ -21,12 +19,13 @@
         <button id="settingsBtn" class="menu-btn">☰</button>
     </div>
 
-    <!-- 登入區 -->
-    <div id="authSection">
-        <button id="loginBtn" class="login-btn">用 Google 登入</button>
-        <span id="userName" class="user-name"></span>
-        <button id="logoutBtn" class="login-btn" style="display:none">登出</button>
+    <!-- Google 登入 -->
+    <div id="g_id_onload"
+         data-client_id="YOUR_GOOGLE_CLIENT_ID"
+         data-callback="handleCredentialResponse"
+         data-auto_prompt="false">
     </div>
+    <div class="google-btn" id="gSignInDiv"></div>
 
     <!-- 專案列表 -->
     <div id="projectList" class="project-list"></div>
@@ -42,112 +41,113 @@
 <!-- 右側滑出設定 -->
 <div id="settingsPanel" class="settings-panel">
     <h3>設定</h3>
+
     <label class="switch-row">
         <span>暗色模式</span>
         <input type="checkbox" id="darkModeToggle">
     </label>
 </div>
 
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+<script>
 
 /* ======================
-   Firebase 初始化
+   Google 登入
 ====================== */
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDnOKhM-ytkCtiqdy9qVoVTme7QEilNPc8",
-  authDomain: "webapp-36d65.firebaseapp.com",
-  projectId: "webapp-36d65",
-  storageBucket: "webapp-36d65.firebasestorage.app",
-  messagingSenderId: "469628306446",
-  appId: "1:469628306446:web:7d80d1a8d7f05977d4a85f",
-};
+let userId = localStorage.getItem("userId") || null;
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth();
-const db = getFirestore(app);
-const provider = new GoogleAuthProvider();
+function handleCredentialResponse(response) {
+    // JWT token 解碼
+    const payload = JSON.parse(atob(response.credential.split(".")[1]));
+    userId = payload.sub;
+    localStorage.setItem("userId", userId);
+    document.getElementById("gSignInDiv").style.display = "none";
+    loadProjects();
+}
 
-/* ======================
-   DOM 元素
-====================== */
-
-const loginBtn = document.getElementById("loginBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-const userName = document.getElementById("userName");
-
-let user = null; // 登入使用者
-let projects = [];
-
-/* ======================
-   Google 登入 / 登出
-====================== */
-
-loginBtn.addEventListener("click", async () => {
-    try {
-        const result = await signInWithPopup(auth, provider);
-        user = result.user;
-    } catch(e) {
-        console.error(e);
-    }
-});
-
-logoutBtn.addEventListener("click", async () => {
-    await signOut(auth);
-    user = null;
-    projects = [];
-    renderAuth();
-    renderProjects();
-});
-
-/* 監聽登入狀態 */
-onAuthStateChanged(auth, async (currentUser) => {
-    user = currentUser;
-    if (user) {
-        // 登入 → 從 Firestore 讀專案
-        const docRef = doc(db, "users", user.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-            projects = docSnap.data().projects || [];
-        } else {
-            projects = [];
-        }
-    } else {
-        projects = [];
-    }
-    renderAuth();
-    renderProjects();
-});
-
-function renderAuth() {
-    if (user) {
-        loginBtn.style.display = "none";
-        logoutBtn.style.display = "inline-block";
-        userName.textContent = user.displayName || "";
-    } else {
-        loginBtn.style.display = "inline-block";
-        logoutBtn.style.display = "none";
-        userName.textContent = "";
-    }
+if (!userId) {
+    // 顯示 Google 登入按鈕
+    google.accounts.id.initialize({
+        client_id: "109779045322-r31j708jj7igf0rfjl1iafen53nvpffa.apps.googleusercontent.com",
+        callback: handleCredentialResponse
+    });
+    google.accounts.id.renderButton(
+        document.getElementById("gSignInDiv"),
+        { theme: "outline", size: "large", width: "100%" }
+    );
 }
 
 /* ======================
-   專案管理
+   設定滑出控制
 ====================== */
 
+const settingsBtn = document.getElementById("settingsBtn");
+const settingsPanel = document.getElementById("settingsPanel");
+const overlay = document.getElementById("overlay");
+
+function openSettings() {
+    settingsPanel.classList.add("open");
+    overlay.classList.add("show");
+}
+
+function closeSettings() {
+    settingsPanel.classList.remove("open");
+    overlay.classList.remove("show");
+}
+
+settingsBtn.addEventListener("click", () => {
+    if (settingsPanel.classList.contains("open")) {
+        closeSettings();
+    } else {
+        openSettings();
+    }
+});
+
+overlay.addEventListener("click", closeSettings);
+
+
+/* ======================
+   暗色模式記憶
+====================== */
+
+const toggle = document.getElementById("darkModeToggle");
+
+if (localStorage.getItem("darkMode") === "true") {
+    document.body.classList.add("dark");
+    toggle.checked = true;
+}
+
+toggle.addEventListener("change", () => {
+    document.body.classList.toggle("dark", toggle.checked);
+    localStorage.setItem("darkMode", toggle.checked);
+});
+
+
+/* ======================
+   專案管理（綁 userId）
+====================== */
+
+let projects = [];
+
+function loadProjects() {
+    if (!userId) return;
+    projects = JSON.parse(localStorage.getItem("projects_" + userId) || "[]");
+    renderProjects();
+}
+
 function saveProjects() {
-    if (!user) return;
-    const docRef = doc(db, "users", user.uid);
-    setDoc(docRef, { projects }, { merge: true });
+    if (!userId) return;
+    localStorage.setItem("projects_" + userId, JSON.stringify(projects));
 }
 
 function renderProjects() {
     const list = document.getElementById("projectList");
     list.innerHTML = "";
+
+    if (!userId) {
+        list.innerHTML = "<p class='empty'>請先登入 Google 帳號</p>";
+        return;
+    }
 
     if (projects.length === 0) {
         list.innerHTML = "<p class='empty'>尚無專案，點擊 ＋ 建立</p>";
@@ -165,12 +165,13 @@ function renderProjects() {
 }
 
 function createProject() {
-    if (!user) {
+    if (!userId) {
         alert("請先登入 Google 帳號");
         return;
     }
     const name = prompt("輸入專案名稱");
     if (!name) return;
+
     projects.push({ name });
     saveProjects();
     renderProjects();
@@ -182,42 +183,8 @@ function deleteProject(index) {
     renderProjects();
 }
 
-/* ======================
-   設定滑出 & 暗色模式
-====================== */
-
-const settingsBtn = document.getElementById("settingsBtn");
-const settingsPanel = document.getElementById("settingsPanel");
-const overlay = document.getElementById("overlay");
-const toggle = document.getElementById("darkModeToggle");
-
-function openSettings() {
-    settingsPanel.classList.add("open");
-    overlay.classList.add("show");
-}
-
-function closeSettings() {
-    settingsPanel.classList.remove("open");
-    overlay.classList.remove("show");
-}
-
-settingsBtn.addEventListener("click", () => {
-    if (settingsPanel.classList.contains("open")) closeSettings();
-    else openSettings();
-});
-
-overlay.addEventListener("click", closeSettings);
-
-/* 暗色模式記憶 */
-if (localStorage.getItem("darkMode") === "true") {
-    document.body.classList.add("dark");
-    toggle.checked = true;
-}
-
-toggle.addEventListener("change", () => {
-    document.body.classList.toggle("dark", toggle.checked);
-    localStorage.setItem("darkMode", toggle.checked);
-});
+// 若已登入
+if (userId) loadProjects();
 
 </script>
 </body>
