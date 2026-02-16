@@ -1,8 +1,9 @@
 :root {
     --bg: #f2f2f2;
     --card: #ffffff;
-    --text: #000;
+    --text: #000000;
     --primary: #007bff;
+    --danger: crimson;
 }
 
 body.dark {
@@ -10,22 +11,24 @@ body.dark {
     --card: #1e1e1e;
     --text: #ffffff;
     --primary: #1a73e8;
+    --danger: #ff4d6d;
 }
 
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg);
     color: var(--text);
     display: flex;
     justify-content: center;
 }
 
+/* App 容器 */
 .app {
     width: 100%;
     max-width: 420px;
     min-height: 100vh;
-    padding: 15px;
+    padding: 20px;
     box-sizing: border-box;
     position: relative;
 }
@@ -37,6 +40,14 @@ body {
     align-items: center;
 }
 
+.menu-btn {
+    font-size: 22px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text);
+}
+
 /* 專案列表 */
 .project-list {
     margin-top: 20px;
@@ -44,31 +55,37 @@ body {
 
 .project-card {
     background: var(--card);
-    padding: 15px;
-    border-radius: 12px;
+    padding: 16px;
+    border-radius: 14px;
     margin-bottom: 15px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    transition: transform 0.15s ease;
+}
+
+.project-card:active {
+    transform: scale(0.98);
 }
 
 .project-title {
-    font-weight: bold;
+    font-weight: 600;
 }
 
 .delete-btn {
-    background: crimson;
+    background: var(--danger);
     color: white;
     border: none;
     padding: 6px 10px;
-    border-radius: 6px;
+    border-radius: 8px;
+    font-size: 14px;
 }
 
 /* 空狀態 */
 .empty {
     text-align: center;
-    margin-top: 50px;
+    margin-top: 60px;
     opacity: 0.6;
 }
 
@@ -76,7 +93,7 @@ body {
 .fab {
     position: fixed;
     bottom: 25px;
-    right: calc(50% - 180px);
+    right: calc(50% - 170px);
     width: 60px;
     height: 60px;
     border-radius: 50%;
@@ -84,10 +101,27 @@ body {
     color: white;
     font-size: 28px;
     border: none;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    cursor: pointer;
 }
 
-/* 設定滑出 */
+/* 遮罩 */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 90;
+}
+
+.overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* 右側設定面板 */
 .settings-panel {
     position: fixed;
     top: 0;
@@ -95,11 +129,21 @@ body {
     width: 260px;
     height: 100%;
     background: var(--card);
-    box-shadow: -4px 0 20px rgba(0,0,0,0.3);
-    padding: 20px;
+    box-shadow: -6px 0 25px rgba(0,0,0,0.25);
+    padding: 25px;
     transition: right 0.3s ease;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
 }
 
 .settings-panel.open {
     right: 0;
+}
+
+.switch-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
