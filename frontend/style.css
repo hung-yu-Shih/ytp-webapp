@@ -1,128 +1,198 @@
 body{
-    font-family: Arial,sans-serif;
-    background:#f5f5f5;
-    text-align:center;
-    margin:0;
-    padding:0;
+margin:0;
+font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+background:linear-gradient(135deg,#4CAF50,#2E7D32);
+color:#000;
+transition:0.3s;
 }
 
-body.dark{background:#1e1e1e;color:#f5f5f5;}
+body.dark{
+background:#121212;
+color:#eee;
+}
 
 .app{
-    max-width:480px;
-    margin:0 auto;
-    position:relative;
-    padding-bottom:60px;
+max-width:480px;
+margin:0 auto;
+height:100vh;
+overflow:hidden;
+position:relative;
 }
 
+/* 登入畫面 */
+.auth-view{
+display:flex;
+justify-content:center;
+align-items:center;
+height:100%;
+}
+
+.auth-card{
+background:#fff;
+padding:30px;
+border-radius:20px;
+width:85%;
+box-shadow:0 10px 30px rgba(0,0,0,0.2);
+text-align:center;
+}
+
+body.dark .auth-card{
+background:#1e1e1e;
+}
+
+.app-title{
+margin:0;
+font-size:24px;
+}
+
+.sub-title{
+color:#666;
+margin-bottom:20px;
+font-size:14px;
+}
+
+input{
+width:100%;
+padding:12px;
+margin:8px 0;
+border-radius:10px;
+border:1px solid #ccc;
+font-size:16px;
+}
+
+.primary-btn{
+width:100%;
+padding:12px;
+background:#4CAF50;
+color:#fff;
+border:none;
+border-radius:12px;
+font-size:16px;
+margin-top:10px;
+}
+
+.secondary-btn{
+width:100%;
+padding:12px;
+background:#eee;
+border:none;
+border-radius:12px;
+font-size:15px;
+margin-top:8px;
+}
+
+.msg{
+color:red;
+margin-top:10px;
+}
+
+/* Header */
 .header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    background:#0078d4;
-    color:#fff;
-    padding:10px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px;
+background:#4CAF50;
+color:#fff;
 }
 
 .menu-btn{
-    font-size:24px;
-    background:none;
-    border:none;
-    color:inherit;
-    cursor:pointer;
+background:none;
+border:none;
+font-size:22px;
+color:#fff;
 }
 
-/* 專案列表 */
-.project-list{margin:20px 10px;}
+/* 專案 */
+.project-list{
+padding:15px;
+}
+
 .project-card{
-    background:#fff;
-    padding:10px;
-    margin-bottom:10px;
-    display:flex;
-    justify-content:space-between;
-    border-radius:5px;
-    box-shadow:0 0 5px rgba(0,0,0,0.1);
+background:#fff;
+padding:15px;
+margin-bottom:10px;
+border-radius:12px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+box-shadow:0 4px 12px rgba(0,0,0,0.1);
 }
-.project-card .delete-btn{
-    background:#e74c3c;
-    border:none;
-    color:#fff;
-    border-radius:3px;
-    cursor:pointer;
-    padding:5px 10px;
+
+body.dark .project-card{
+background:#1f1f1f;
 }
-.empty{color:#999;}
+
+.delete-btn{
+background:#f44336;
+border:none;
+color:#fff;
+padding:6px 12px;
+border-radius:8px;
+}
+
+.empty{
+text-align:center;
+color:#888;
+}
 
 /* 浮動按鈕 */
 .fab{
-    position:fixed;
-    bottom:20px;
-    right:20px;
-    background:#0078d4;
-    color:#fff;
-    border:none;
-    border-radius:50%;
-    width:50px;
-    height:50px;
-    font-size:24px;
-    cursor:pointer;
-    box-shadow:0 0 10px rgba(0,0,0,0.2);
+position:fixed;
+bottom:20px;
+right:20px;
+width:55px;
+height:55px;
+border-radius:50%;
+background:#4CAF50;
+color:#fff;
+font-size:28px;
+border:none;
+box-shadow:0 5px 15px rgba(0,0,0,0.3);
 }
 
-/* 遮罩 */
+/* 設定 */
 .overlay{
-    position:fixed; top:0; left:0; right:0; bottom:0;
-    background:rgba(0,0,0,0.4);
-    display:none;
-    z-index:50;
+position:fixed;
+top:0;left:0;
+width:100%;height:100%;
+background:rgba(0,0,0,0.3);
+opacity:0;
+pointer-events:none;
+transition:0.3s;
 }
-.overlay.show{display:block;}
 
-/* 右側設定 */
+.overlay.show{
+opacity:1;
+pointer-events:auto;
+}
+
 .settings-panel{
-    position:fixed;
-    top:0;
-    right:0;
-    width:260px;
-    height:100%;
-    background:#fff;
-    box-shadow:-2px 0 8px rgba(0,0,0,0.3);
-    padding:20px;
-    z-index:100;
-    transition: transform 0.3s ease;
-    transform: translateX(100%);
-    overflow-y:auto;
-}
-.settings-panel.open{transform:translateX(0);}
-body.dark .settings-panel{background:#2c2c2c;color:#fff;}
-
-/* 開關 */
-.switch-row{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin:15px 0;
+position:fixed;
+top:0;
+right:-260px;
+width:260px;
+height:100%;
+background:#f5f5f5;
+padding:20px;
+transition:0.3s;
+z-index:10;
 }
 
-/* 登入面板 */
-.auth-panel{
-    margin:50px 10px;
-    background:#fff;
-    padding:20px;
-    border-radius:10px;
-    box-shadow:0 0 10px rgba(0,0,0,0.2);
+.settings-panel.open{
+right:0;
 }
-.auth-panel input{
-    display:block;
-    width:90%;
-    margin:10px auto;
-    padding:8px;
-    font-size:16px;
+
+body.dark .settings-panel{
+background:#1e1e1e;
 }
-.auth-panel button{
-    margin:5px;
-    padding:8px 16px;
-    font-size:16px;
-    cursor:pointer;
+
+.logout-btn{
+margin-top:20px;
+width:100%;
+padding:10px;
+background:#f44336;
+color:white;
+border:none;
+border-radius:8px;
 }
-.auth-msg{color:red;font-size:14px;}
