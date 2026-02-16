@@ -5,7 +5,6 @@
     <title>AI 台北行旅工具</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="/static/style.css">
-
     <!-- Google Identity Services -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -19,13 +18,8 @@
         <button id="settingsBtn" class="menu-btn">☰</button>
     </div>
 
-    <!-- Google 登入 -->
-    <div id="g_id_onload"
-         data-client_id="YOUR_GOOGLE_CLIENT_ID"
-         data-callback="handleCredentialResponse"
-         data-auto_prompt="false">
-    </div>
-    <div class="google-btn" id="gSignInDiv"></div>
+    <!-- Google 登入按鈕 -->
+    <div id="gSignInDiv" class="google-btn"></div>
 
     <!-- 專案列表 -->
     <div id="projectList" class="project-list"></div>
@@ -57,7 +51,6 @@
 let userId = localStorage.getItem("userId") || null;
 
 function handleCredentialResponse(response) {
-    // JWT token 解碼
     const payload = JSON.parse(atob(response.credential.split(".")[1]));
     userId = payload.sub;
     localStorage.setItem("userId", userId);
@@ -66,15 +59,19 @@ function handleCredentialResponse(response) {
 }
 
 if (!userId) {
-    // 顯示 Google 登入按鈕
     google.accounts.id.initialize({
-        client_id: "109779045322-r31j708jj7igf0rfjl1iafen53nvpffa.apps.googleusercontent.com",
+        client_id: "109779045322-r31j708jj7igf0rfjl1iafen53nvpffa.apps.googleusercontent.com", // 替換成你的 Google OAuth Client ID
         callback: handleCredentialResponse
     });
+
     google.accounts.id.renderButton(
         document.getElementById("gSignInDiv"),
         { theme: "outline", size: "large", width: "100%" }
     );
+
+    google.accounts.id.prompt();
+} else {
+    document.getElementById("gSignInDiv").style.display = "none";
 }
 
 /* ======================
