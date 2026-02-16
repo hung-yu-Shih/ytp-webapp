@@ -12,67 +12,78 @@
 
   <!-- 登入畫面 -->
   <div id="loginView" class="auth-view">
-    <h1>登入 / 註冊</h1>
-    <input type="text" id="usernameInput" placeholder="帳號">
-    <input type="password" id="passwordInput" placeholder="密碼">
-    <button onclick="login()">登入</button>
-    <button onclick="register()">註冊</button>
-    <p id="authMsg" class="msg"></p>
+    <div class="auth-card">
+      <h1 class="app-title">AI 台北行旅工具</h1>
+      <p class="sub-title">智慧行程專案管理</p>
+
+      <input type="text" id="usernameInput" placeholder="帳號">
+      <input type="password" id="passwordInput" placeholder="密碼">
+
+      <button class="primary-btn" onclick="login()">登入</button>
+      <button class="secondary-btn" onclick="register()">註冊帳號</button>
+
+      <p id="authMsg" class="msg"></p>
+    </div>
   </div>
 
   <!-- 主畫面 -->
   <div id="mainView" class="main-view" style="display:none">
-
-    <!-- Header -->
     <div class="header">
       <h1>行程專案</h1>
       <button id="settingsBtn" class="menu-btn">☰</button>
     </div>
 
-    <!-- 專案列表 -->
     <div id="projectList" class="project-list"></div>
-
-    <!-- 浮動新增按鈕 -->
     <button class="fab" onclick="createProject()">＋</button>
-
   </div>
 
 </div>
 
-<!-- 遮罩 -->
 <div id="overlay" class="overlay"></div>
 
-<!-- 右側滑出設定 -->
 <div id="settingsPanel" class="settings-panel">
   <h3>設定</h3>
   <label class="switch-row">
     <span>暗色模式</span>
     <input type="checkbox" id="darkModeToggle">
   </label>
+  <button class="logout-btn" onclick="logout()">登出</button>
 </div>
 
 <script>
 /* ======================
-   登入/註冊
+   自動登入記憶
 ====================== */
 let currentUser = null;
-
 const authMsg = document.getElementById("authMsg");
 const loginView = document.getElementById("loginView");
 const mainView = document.getElementById("mainView");
 
+window.onload = function(){
+    const savedUser = localStorage.getItem("user");
+    if(savedUser){
+        currentUser = JSON.parse(savedUser);
+        showAppForUser();
+    }
+}
+
 function login(){
     const username = document.getElementById("usernameInput").value.trim();
     const password = document.getElementById("passwordInput").value;
-    fetch("/login", {
+
+    fetch("/login",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body: JSON.stringify({username,password})
     })
     .then(r=>r.json())
     .then(data=>{
-        if(data.detail){ authMsg.textContent=data.detail; return; }
+        if(data.detail){
+            authMsg.textContent=data.detail;
+            return;
+        }
         currentUser = data;
+        localStorage.setItem("user", JSON.stringify(data)); // 記住登入
         showAppForUser();
     })
     .catch(()=>authMsg.textContent="登入失敗");
@@ -81,7 +92,8 @@ function login(){
 function register(){
     const username = document.getElementById("usernameInput").value.trim();
     const password = document.getElementById("passwordInput").value;
-    fetch("/register", {
+
+    fetch("/register",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body: JSON.stringify({username,password})
@@ -91,6 +103,11 @@ function register(){
     .catch(()=>authMsg.textContent="註冊失敗");
 }
 
+function logout(){
+    localStorage.removeItem("user");
+    location.reload();
+}
+
 function showAppForUser(){
     loginView.style.display="none";
     mainView.style.display="block";
@@ -98,101 +115,89 @@ function showAppForUser(){
 }
 
 /* ======================
-   專案操作
+   專案 CRUD
 ====================== */
-let projects = [];
+let projects=[];
 
 function loadUserProjects(){
     if(!currentUser) return;
     fetch(`/projects/${currentUser.id}`)
     .then(r=>r.json())
-    .then(data=>{ projects=data; renderProjects(); });
-}
-
-function saveUserProjects(){
-    projects.forEach(p=>{
-        if(!p.id){
-            fetch(`/projects/${currentUser.id}`,{
-                method:"POST",
-                headers:{"Content-Type":"application/json"},
-                body: JSON.stringify({name:p.name})
-            })
-            .then(()=>loadUserProjects());
-        }
+    .then(data=>{
+        projects=data;
+        renderProjects();
     });
 }
 
 function renderProjects(){
-    const list = document.getElementById("projectList");
+    const list=document.getElementById("projectList");
     list.innerHTML="";
     if(projects.length===0){
         list.innerHTML="<p class='empty'>尚無專案，點擊 ＋ 建立</p>";
         return;
     }
     projects.forEach((p,index)=>{
-        const div = document.createElement("div");
+        const div=document.createElement("div");
         div.className="project-card";
-        div.innerHTML=`<div class="project-title">${p.name}</div>
-                       <button class="delete-btn" onclick="deleteProject(${index})">刪除</button>`;
+        div.innerHTML=`
+            <div>${p.name}</div>
+            <button class="delete-btn" onclick="deleteProject(${index})">刪除</button>
+        `;
         list.appendChild(div);
     });
 }
 
 function createProject(){
-    const name = prompt("輸入專案名稱");
+    const name=prompt("輸入專案名稱");
     if(!name) return;
-    projects.push({name});
-    saveUserProjects();
+
+    fetch(`/projects/${currentUser.id}`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({name})
+    })
+    .then(()=>loadUserProjects());
 }
 
 function deleteProject(index){
-    const p = projects[index];
-    if(p.id){
-        fetch(`/projects/${currentUser.id}/${p.id}`,{method:"DELETE"})
-        .then(()=>loadUserProjects());
-    }
-    projects.splice(index,1);
-    renderProjects();
+    const p=projects[index];
+    fetch(`/projects/${currentUser.id}/${p.id}`,{method:"DELETE"})
+    .then(()=>loadUserProjects());
 }
 
 /* ======================
-   設定滑出控制
+   設定面板
 ====================== */
-const settingsBtn = document.getElementById("settingsBtn");
-const settingsPanel = document.getElementById("settingsPanel");
-const overlay = document.getElementById("overlay");
+const settingsBtn=document.getElementById("settingsBtn");
+const settingsPanel=document.getElementById("settingsPanel");
+const overlay=document.getElementById("overlay");
 
-function openSettings(){ settingsPanel.classList.add("open"); overlay.classList.add("show"); }
-function closeSettings(){ settingsPanel.classList.remove("open"); overlay.classList.remove("show"); }
+function openSettings(){
+    settingsPanel.classList.add("open");
+    overlay.classList.add("show");
+}
 
-settingsBtn.addEventListener("click",()=>{
-    if(settingsPanel.classList.contains("open")) closeSettings();
-    else openSettings();
-});
+function closeSettings(){
+    settingsPanel.classList.remove("open");
+    overlay.classList.remove("show");
+}
 
-overlay.addEventListener("click", closeSettings);
-
-// 手勢滑動關閉
-let startX=0;
-settingsPanel.addEventListener("touchstart",(e)=>{startX=e.touches[0].clientX;});
-settingsPanel.addEventListener("touchmove",(e)=>{
-    let dx=e.touches[0].clientX - startX;
-    if(dx< -50) closeSettings();
-});
+settingsBtn.onclick=()=>settingsPanel.classList.contains("open")?closeSettings():openSettings();
+overlay.onclick=closeSettings;
 
 /* ======================
    暗色模式記憶
 ====================== */
-const toggle = document.getElementById("darkModeToggle");
+const toggle=document.getElementById("darkModeToggle");
 if(localStorage.getItem("darkMode")==="true"){
     document.body.classList.add("dark");
     toggle.checked=true;
 }
-toggle.addEventListener("change",()=>{
-    document.body.classList.toggle("dark", toggle.checked);
-    localStorage.setItem("darkMode", toggle.checked);
-});
 
+toggle.addEventListener("change",()=>{
+    document.body.classList.toggle("dark",toggle.checked);
+    localStorage.setItem("darkMode",toggle.checked);
+});
 </script>
 
 </body>
