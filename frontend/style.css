@@ -97,24 +97,38 @@ body.dark {
 .settings-panel {
     position: fixed;
     top:0; 
-    right:-250px; /* 完全隱藏在螢幕外 */
-    width: 250px;
+    right:-260px; /* 藏到完全看不到 */
+    width: 260px;
     height:100%;
     background:#fff;
-    box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+    box-shadow: -2px 0 8px rgba(0,0,0,0.3);
     padding:20px;
     z-index:100;
-    transition: right 0.3s ease;
-    overflow-y: auto; /* 防止內容溢出 */
+    transition: transform 0.3s ease;
+    transform: translateX(100%); /* 初始完全隱藏 */
+    overflow-y:auto;
 }
 
 .settings-panel.open {
-    right:0;
+    transform: translateX(0); /* 開啟滑進畫面 */
 }
 
 body.dark .settings-panel {
     background:#2c2c2c;
     color:#fff;
+}
+
+/* 遮罩 */
+.overlay {
+    position: fixed;
+    top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.4);
+    display:none;
+    z-index:50;
+}
+
+.overlay.show {
+    display:block;
 }
 
 
