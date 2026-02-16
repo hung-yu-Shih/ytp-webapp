@@ -1,107 +1,98 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<title>AI 台北行旅工具</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<link rel="stylesheet" href="/static/style.css">
-
-<!-- Leaflet 地圖 CSS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <meta charset="UTF-8">
+    <title>AI 台北行旅工具</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <!-- 右側滑出設定面板 -->
-    <div id="settingsPanel" class="settings-panel">
-        <h3>設定</h3>
-        <label class="switch">
-            <input type="checkbox" id="darkModeToggle">
-            <span class="slider"></span>
-            暗色模式
-        </label>
-        <button id="closeSettings">關閉</button>
+
+<div class="app">
+
+    <!-- Header -->
+    <div class="header">
+        <h1>行程專案</h1>
+        <button id="settingsBtn">☰</button>
     </div>
 
-    <div class="container">
-        <header>
-            <h1>AI 台北行旅工具</h1>
-            <button id="settingsBtn">⚙️</button>
-        </header>
+    <!-- 專案列表 -->
+    <div id="projectList" class="project-list"></div>
 
-        <main>
-            <input type="text" id="queryInput" placeholder="輸入你想去的景點">
-            <button onclick="showItinerary()">生成行程</button>
+    <!-- 新增專案按鈕 -->
+    <button class="fab" onclick="createProject()">＋</button>
 
-            <!-- 地圖容器 -->
-            <div id="map"></div>
+</div>
 
-            <div id="result">行程結果會顯示在這裡</div>
-        </main>
-    </div>
+<!-- 右側滑出設定 -->
+<div id="settingsPanel" class="settings-panel">
+    <h3>設定</h3>
+    <label class="switch">
+        <input type="checkbox" id="darkModeToggle">
+        <span>暗色模式</span>
+    </label>
+</div>
 
-    <!-- Leaflet 地圖 JS -->
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
 
-    <script>
-        // 滑出設定面板
-        const settingsBtn = document.getElementById("settingsBtn");
-        const settingsPanel = document.getElementById("settingsPanel");
-        const closeSettings = document.getElementById("closeSettings");
+const settingsBtn = document.getElementById("settingsBtn");
+const settingsPanel = document.getElementById("settingsPanel");
 
-        settingsBtn.addEventListener("click", () => settingsPanel.classList.add("open"));
-        closeSettings.addEventListener("click", () => settingsPanel.classList.remove("open"));
+settingsBtn.addEventListener("click", () => {
+    settingsPanel.classList.toggle("open");
+});
 
-        // 暗色模式
-        const toggle = document.getElementById("darkModeToggle");
-        const darkModeSetting = localStorage.getItem("darkMode");
-        if(darkModeSetting === "true"){
-            document.body.classList.add("dark");
-            toggle.checked = true;
-        }
-        toggle.addEventListener("change", () => {
-            document.body.classList.toggle("dark", toggle.checked);
-            localStorage.setItem("darkMode", toggle.checked);
-        });
+/* 暗色模式記憶 */
+const toggle = document.getElementById("darkModeToggle");
+if (localStorage.getItem("darkMode") === "true") {
+    document.body.classList.add("dark");
+    toggle.checked = true;
+}
 
-        // 模擬行程生成
-        function showItinerary() {
-            const query = document.getElementById("queryInput").value.trim();
-            const resultDiv = document.getElementById("result");
-            if (!query) {
-                resultDiv.innerHTML = "<span class='error'>請輸入景點名稱</span>";
-                return;
-            }
-            resultDiv.innerHTML = `
-                <h3>建議行程：${query}</h3>
-                <ul>
-                    <li>09:00 出發前往 ${query}</li>
-                    <li>11:00 享用當地美食</li>
-                    <li>13:00 參觀博物館或特色景點</li>
-                    <li>16:00 返回住宿地</li>
-                </ul>
-            `;
-        }
+toggle.addEventListener("change", () => {
+    document.body.classList.toggle("dark", toggle.checked);
+    localStorage.setItem("darkMode", toggle.checked);
+});
 
-        // Leaflet 地圖初始化
-        const map = L.map('map').setView([25.0330, 121.5654], 15); // 預設台北101
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(map);
+/* 專案管理 */
+let projects = JSON.parse(localStorage.getItem("projects") || "[]");
 
-        // 嘗試取得使用者位置
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(position => {
-                const lat = position.coords.latitude;
-                const lng = position.coords.longitude;
-                map.setView([lat, lng], 16);
-                L.marker([lat, lng]).addTo(map)
-                    .bindPopup("你的位置")
-                    .openPopup();
-            }, err => {
-                console.warn("無法取得位置:", err.message);
-            });
-        } else {
-            console.warn("你的瀏覽器不支援 Geolocation");
-        }
-    </script>
+function renderProjects() {
+    const list = document.getElementById("projectList");
+    list.innerHTML = "";
+
+    if (projects.length === 0) {
+        list.innerHTML = "<p class='empty'>尚無專案，點擊 + 建立</p>";
+        return;
+    }
+
+    projects.forEach((p, index) => {
+        list.innerHTML += `
+            <div class="project-card">
+                <div class="project-title">${p.name}</div>
+                <button class="delete-btn" onclick="deleteProject(${index})">刪除</button>
+            </div>
+        `;
+    });
+}
+
+function createProject() {
+    const name = prompt("輸入專案名稱");
+    if (!name) return;
+
+    projects.push({ name });
+    localStorage.setItem("projects", JSON.stringify(projects));
+    renderProjects();
+}
+
+function deleteProject(index) {
+    projects.splice(index, 1);
+    localStorage.setItem("projects", JSON.stringify(projects));
+    renderProjects();
+}
+
+renderProjects();
+
+</script>
 </body>
 </html>
