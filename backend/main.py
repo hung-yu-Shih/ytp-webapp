@@ -6,10 +6,13 @@ from pydantic import BaseModel
 import sqlite3
 from pathlib import Path
 
+# =====================
+# FastAPI App
+# =====================
 app = FastAPI(title="AI 台北行旅工具 API")
 
 # =====================
-# CORS
+# CORS (允許手機前端跨域呼叫)
 # =====================
 app.add_middleware(
     CORSMiddleware,
@@ -19,18 +22,20 @@ app.add_middleware(
 )
 
 # =====================
-# 前端靜態檔案設定
+# 靜態前端設定
 # =====================
-BASE_DIR = Path(__file__).parent.parent
+BASE_DIR = Path(__file__).parent.parent  # 從 backend/ 往上一層 app/
 frontend_dir = BASE_DIR / "frontend"
 
+# 提供 /static 服務
 app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
 
+# 首頁
 @app.get("/", include_in_schema=False)
 def root():
     index_file = frontend_dir / "index.html"
     if not index_file.exists():
-        return {"error":"index.html 不存在"}
+        return {"error": "index.html 不存在"}
     return FileResponse(index_file)
 
 # =====================
