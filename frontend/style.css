@@ -125,22 +125,26 @@ body {
 .settings-panel {
     position: fixed;
     top: 0;
-    right: -260px;
+    right: 0;
     width: 260px;
     height: 100%;
     background: var(--card);
     box-shadow: -6px 0 25px rgba(0,0,0,0.25);
     padding: 25px;
-    transition: right 0.3s ease;
+    transition: transform 0.3s ease;
     z-index: 100;
     display: flex;
     flex-direction: column;
     gap: 25px;
+
+    transform: translateX(100%); /* 完全移出畫面 */
 }
 
 .settings-panel.open {
-    right: 0;
+    transform: translateX(0);
 }
+
+
 
 .switch-row {
     display: flex;
