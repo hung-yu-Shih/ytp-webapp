@@ -1,149 +1,153 @@
-:root {
-    --bg: #f2f2f2;
-    --card: #ffffff;
-    --text: #000000;
-    --primary: #007bff;
-    --danger: crimson;
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    text-align: center;
+    margin: 0;
+    padding: 0;
 }
 
 body.dark {
-    --bg: #121212;
-    --card: #1e1e1e;
-    --text: #ffffff;
-    --primary: #1a73e8;
-    --danger: #ff4d6d;
+    background: #1e1e1e;
+    color: #f5f5f5;
 }
 
-body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    display: flex;
-    justify-content: center;
-}
-
-/* App 容器 */
 .app {
-    width: 100%;
-    max-width: 420px;
-    min-height: 100vh;
-    padding: 20px;
-    box-sizing: border-box;
+    max-width: 480px;
+    margin: 0 auto;
     position: relative;
+    padding-bottom: 60px;
 }
 
-/* Header */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background: #0078d4;
+    color: #fff;
+    padding: 10px;
 }
 
 .menu-btn {
-    font-size: 22px;
+    font-size: 24px;
     background: none;
     border: none;
+    color: inherit;
     cursor: pointer;
-    color: var(--text);
 }
 
 /* 專案列表 */
 .project-list {
-    margin-top: 20px;
+    margin: 20px 10px;
 }
 
 .project-card {
-    background: var(--card);
-    padding: 16px;
-    border-radius: 14px;
-    margin-bottom: 15px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    background: #fff;
+    padding: 10px;
+    margin-bottom: 10px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    transition: transform 0.15s ease;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
 }
 
-.project-card:active {
-    transform: scale(0.98);
-}
-
-.project-title {
-    font-weight: 600;
-}
-
-.delete-btn {
-    background: var(--danger);
-    color: white;
+.project-card .delete-btn {
+    background: #e74c3c;
     border: none;
-    padding: 6px 10px;
-    border-radius: 8px;
-    font-size: 14px;
+    color: #fff;
+    border-radius: 3px;
+    cursor: pointer;
+    padding: 5px 10px;
 }
 
-/* 空狀態 */
+/* 空白訊息 */
 .empty {
-    text-align: center;
-    margin-top: 60px;
-    opacity: 0.6;
+    color: #999;
 }
 
-/* 浮動新增按鈕 */
+/* 浮動按鈕 */
 .fab {
     position: fixed;
-    bottom: 25px;
-    right: calc(50% - 170px);
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: var(--primary);
-    color: white;
-    font-size: 28px;
+    bottom: 20px;
+    right: 20px;
+    background: #0078d4;
+    color: #fff;
     border: none;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
     cursor: pointer;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
 }
 
 /* 遮罩 */
 .overlay {
     position: fixed;
-    inset: 0;
+    top:0; left:0; right:0; bottom:0;
     background: rgba(0,0,0,0.4);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-    z-index: 90;
+    display:none;
+    z-index: 50;
 }
 
 .overlay.show {
-    opacity: 1;
-    pointer-events: auto;
+    display:block;
 }
 
-/* 右側設定面板 */
+/* 右側設定 */
 .settings-panel {
     position: fixed;
-    top: 0;
-    right: -260px;
-    width: 260px;
-    height: 100%;
-    background: var(--card);
-    box-shadow: -6px 0 25px rgba(0,0,0,0.25);
-    padding: 25px;
+    top:0; right:-250px;
+    width: 250px;
+    height:100%;
+    background:#fff;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+    padding:20px;
+    z-index:100;
     transition: right 0.3s ease;
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
 }
 
 .settings-panel.open {
-    right: 0;
+    right:0;
 }
 
+body.dark .settings-panel {
+    background:#2c2c2c;
+    color:#fff;
+}
+
+/* 開關 */
 .switch-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin: 15px 0;
+}
+
+/* 登入面板 */
+.auth-panel {
+    margin: 50px 10px;
+    background:#fff;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+.auth-panel input {
+    display:block;
+    width: 90%;
+    margin: 10px auto;
+    padding: 8px;
+    font-size:16px;
+}
+
+.auth-panel button {
+    margin:5px;
+    padding:8px 16px;
+    font-size:16px;
+    cursor:pointer;
+}
+
+.auth-msg {
+    color:red;
+    font-size:14px;
 }
