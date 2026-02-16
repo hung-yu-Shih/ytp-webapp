@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <title>AI 台北行旅工具</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="stylesheet" href="/static/style.css">
-    <!-- Google Identity Services -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+<meta charset="UTF-8">
+<title>AI 台北行旅工具</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="stylesheet" href="/static/style.css">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
@@ -35,7 +34,6 @@
 <!-- 右側滑出設定 -->
 <div id="settingsPanel" class="settings-panel">
     <h3>設定</h3>
-
     <label class="switch-row">
         <span>暗色模式</span>
         <input type="checkbox" id="darkModeToggle">
@@ -43,11 +41,9 @@
 </div>
 
 <script>
-
-/* ======================
-   Google 登入
-====================== */
-
+// ======================
+// Google 登入
+// ======================
 let userId = localStorage.getItem("userId") || null;
 
 function handleCredentialResponse(response) {
@@ -60,24 +56,21 @@ function handleCredentialResponse(response) {
 
 if (!userId) {
     google.accounts.id.initialize({
-        client_id: "109779045322-r31j708jj7igf0rfjl1iafen53nvpffa.apps.googleusercontent.com", // 替換成你的 Google OAuth Client ID
+        client_id: "109779045322-r31j708jj7igf0rfjl1iafen53nvpffa.apps.googleusercontent.com",
         callback: handleCredentialResponse
     });
-
     google.accounts.id.renderButton(
         document.getElementById("gSignInDiv"),
         { theme: "outline", size: "large", width: "100%" }
     );
-
     google.accounts.id.prompt();
 } else {
     document.getElementById("gSignInDiv").style.display = "none";
 }
 
-/* ======================
-   設定滑出控制
-====================== */
-
+// ======================
+// 設定滑出控制
+// ======================
 const settingsBtn = document.getElementById("settingsBtn");
 const settingsPanel = document.getElementById("settingsPanel");
 const overlay = document.getElementById("overlay");
@@ -86,44 +79,32 @@ function openSettings() {
     settingsPanel.classList.add("open");
     overlay.classList.add("show");
 }
-
 function closeSettings() {
     settingsPanel.classList.remove("open");
     overlay.classList.remove("show");
 }
-
 settingsBtn.addEventListener("click", () => {
-    if (settingsPanel.classList.contains("open")) {
-        closeSettings();
-    } else {
-        openSettings();
-    }
+    if (settingsPanel.classList.contains("open")) closeSettings();
+    else openSettings();
 });
-
 overlay.addEventListener("click", closeSettings);
 
-
-/* ======================
-   暗色模式記憶
-====================== */
-
+// ======================
+// 暗色模式記憶
+// ======================
 const toggle = document.getElementById("darkModeToggle");
-
 if (localStorage.getItem("darkMode") === "true") {
     document.body.classList.add("dark");
     toggle.checked = true;
 }
-
 toggle.addEventListener("change", () => {
     document.body.classList.toggle("dark", toggle.checked);
     localStorage.setItem("darkMode", toggle.checked);
 });
 
-
-/* ======================
-   專案管理（綁 userId）
-====================== */
-
+// ======================
+// 專案管理
+// ======================
 let projects = [];
 
 function loadProjects() {
@@ -162,13 +143,9 @@ function renderProjects() {
 }
 
 function createProject() {
-    if (!userId) {
-        alert("請先登入 Google 帳號");
-        return;
-    }
+    if (!userId) { alert("請先登入 Google 帳號"); return; }
     const name = prompt("輸入專案名稱");
     if (!name) return;
-
     projects.push({ name });
     saveProjects();
     renderProjects();
@@ -180,9 +157,7 @@ function deleteProject(index) {
     renderProjects();
 }
 
-// 若已登入
 if (userId) loadProjects();
-
 </script>
 </body>
 </html>
