@@ -5,7 +5,6 @@
     <title>AI 台北行旅工具</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="stylesheet" href="/static/style.css">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
@@ -17,22 +16,11 @@
         <button id="settingsBtn" class="menu-btn">☰</button>
     </div>
 
-    <!-- 登入按鈕 -->
-    <div id="loginContainer" class="login-container">
-        <div id="g_id_onload"
-             data-client_id="YOUR_GOOGLE_CLIENT_ID"
-             data-login_uri=""
-             data-auto_prompt="false"
-             data-callback="handleCredentialResponse">
-        </div>
-        <div class="g_id_signin" data-type="standard"></div>
-    </div>
-
     <!-- 專案列表 -->
-    <div id="projectList" class="project-list" style="display:none;"></div>
+    <div id="projectList" class="project-list"></div>
 
     <!-- 浮動新增按鈕 -->
-    <button class="fab" onclick="createProject()" style="display:none;">＋</button>
+    <button class="fab" onclick="createProject()">＋</button>
 
 </div>
 
@@ -47,47 +35,22 @@
         <span>暗色模式</span>
         <input type="checkbox" id="darkModeToggle">
     </label>
-    <button id="logoutBtn" style="margin-top:20px;">登出</button>
+    <div style="margin-top:20px; font-size:14px; opacity:0.8;">匿名用戶 ID: <span id="userIdDisplay"></span></div>
 </div>
 
 <script>
 
 /* ======================
-   登入控制
+   匿名登入
 ====================== */
 
-let currentUser = null;
-
-function handleCredentialResponse(response) {
-    // response.credential 可傳給後端驗證，這裡簡單用 base64 模擬帳號
-    const payload = JSON.parse(atob(response.credential.split(".")[1]));
-    currentUser = payload.email;
-    localStorage.setItem("currentUser", currentUser);
-
-    // 隱藏登入區
-    document.getElementById("loginContainer").style.display = "none";
-    document.getElementById("projectList").style.display = "block";
-    document.querySelector(".fab").style.display = "block";
-
-    loadUserProjects();
+// 如果 localStorage 沒有 userId，就生成
+let currentUser = localStorage.getItem("anonUserId");
+if (!currentUser) {
+    currentUser = "user_" + Math.random().toString(36).substring(2, 10);
+    localStorage.setItem("anonUserId", currentUser);
 }
-
-const savedUser = localStorage.getItem("currentUser");
-if (savedUser) {
-    currentUser = savedUser;
-    document.getElementById("loginContainer").style.display = "none";
-    document.getElementById("projectList").style.display = "block";
-    document.querySelector(".fab").style.display = "block";
-    loadUserProjects();
-}
-
-document.getElementById("logoutBtn").addEventListener("click", () => {
-    localStorage.removeItem("currentUser");
-    currentUser = null;
-    document.getElementById("loginContainer").style.display = "block";
-    document.getElementById("projectList").style.display = "none";
-    document.querySelector(".fab").style.display = "none";
-});
+document.getElementById("userIdDisplay").textContent = currentUser;
 
 
 /* ======================
@@ -137,25 +100,14 @@ toggle.addEventListener("change", () => {
 
 
 /* ======================
-   專案管理（綁帳號）
+   專案管理（綁匿名用戶）
 ====================== */
 
 function getProjectsKey(user) {
     return `projects_${user}`;
 }
 
-let projects = [];
-
-function loadUserProjects() {
-    if (!currentUser) return;
-    projects = JSON.parse(localStorage.getItem(getProjectsKey(currentUser)) || "[]");
-    renderProjects();
-}
-
-function saveUserProjects() {
-    if (!currentUser) return;
-    localStorage.setItem(getProjectsKey(currentUser), JSON.stringify(projects));
-}
+let projects = JSON.parse(localStorage.getItem(getProjectsKey(currentUser)) || "[]");
 
 function renderProjects() {
     const list = document.getElementById("projectList");
@@ -181,15 +133,17 @@ function createProject() {
     if (!name) return;
 
     projects.push({ name });
-    saveUserProjects();
+    localStorage.setItem(getProjectsKey(currentUser), JSON.stringify(projects));
     renderProjects();
 }
 
 function deleteProject(index) {
     projects.splice(index, 1);
-    saveUserProjects();
+    localStorage.setItem(getProjectsKey(currentUser), JSON.stringify(projects));
     renderProjects();
 }
+
+renderProjects();
 
 </script>
 </body>
