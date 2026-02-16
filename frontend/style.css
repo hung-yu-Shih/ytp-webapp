@@ -1,39 +1,23 @@
-:root {
-    --bg: #f2f2f2;
-    --card: #ffffff;
-    --text: #000000;
-    --primary: #007bff;
-    --danger: crimson;
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    margin: 0;
+    padding: 0;
+    color: #333;
 }
 
 body.dark {
-    --bg: #121212;
-    --card: #1e1e1e;
-    --text: #ffffff;
-    --primary: #1a73e8;
-    --danger: #ff4d6d;
+    background: #121212;
+    color: #f5f5f5;
 }
 
-body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    display: flex;
-    justify-content: center;
-}
-
-/* App 容器 */
 .app {
-    width: 100%;
-    max-width: 420px;
-    min-height: 100vh;
-    padding: 20px;
-    box-sizing: border-box;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 10px;
     position: relative;
 }
 
-/* Header */
 .header {
     display: flex;
     justify-content: space-between;
@@ -41,111 +25,95 @@ body {
 }
 
 .menu-btn {
-    font-size: 22px;
+    font-size: 24px;
     background: none;
     border: none;
     cursor: pointer;
-    color: var(--text);
 }
 
-/* 專案列表 */
+.google-btn {
+    width: 100%;
+    margin: 10px 0;
+}
+
 .project-list {
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 .project-card {
-    background: var(--card);
-    padding: 16px;
-    border-radius: 14px;
-    margin-bottom: 15px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    background: #fff;
+    padding: 12px;
+    margin-bottom: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    transition: transform 0.15s ease;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.project-card:active {
-    transform: scale(0.98);
-}
-
-.project-title {
-    font-weight: 600;
+body.dark .project-card {
+    background: #1e1e1e;
 }
 
 .delete-btn {
-    background: var(--danger);
-    color: white;
+    background: #ff4d4f;
     border: none;
-    padding: 6px 10px;
-    border-radius: 8px;
-    font-size: 14px;
-}
-
-/* 空狀態 */
-.empty {
-    text-align: center;
-    margin-top: 60px;
-    opacity: 0.6;
-}
-
-/* 浮動新增按鈕 */
-.fab {
-    position: fixed;
-    bottom: 25px;
-    right: calc(50% - 170px);
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: var(--primary);
-    color: white;
-    font-size: 28px;
-    border: none;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 4px;
     cursor: pointer;
 }
 
-/* 遮罩 */
-.overlay {
+.fab {
     position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.4);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-    z-index: 90;
+    right: 16px;
+    bottom: 16px;
+    background: #1890ff;
+    color: #fff;
+    border: none;
+    font-size: 24px;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
-.overlay.show {
-    opacity: 1;
-    pointer-events: auto;
+.overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.3);
+    display: none;
+    z-index: 5;
 }
+
+.overlay.show { display: block; }
 
 .settings-panel {
     position: fixed;
-    top: 0;
-    right: 0;
-    width: 260px;
+    top: 0; right: -280px;
+    width: 280px;
     height: 100%;
-    background: var(--card);
-    box-shadow: -6px 0 25px rgba(0,0,0,0.25);
-    padding: 25px;
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-
-    transform: translateX(100%);
-    transition: transform 0.3s cubic-bezier(.22,1,.36,1);
-    will-change: transform;
+    background: #f9f9f9;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+    padding: 20px;
+    transition: right 0.3s ease;
+    z-index: 10;
 }
 
-.settings-panel.open {
-    transform: translateX(0);
-}
+.settings-panel.open { right: 0; }
+
+body.dark .settings-panel { background: #222; }
 
 .switch-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-top: 15px;
+}
+
+.empty {
+    text-align: center;
+    color: #999;
+    margin-top: 20px;
 }
