@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<title>AI 台北行旅工具</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<link rel="stylesheet" href="/static/style.css">
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+    <meta charset="UTF-8">
+    <title>AI 台北行旅工具</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
@@ -17,14 +17,22 @@
         <button id="settingsBtn" class="menu-btn">☰</button>
     </div>
 
-    <!-- Google 登入按鈕 -->
-    <div id="gSignInDiv" class="google-btn"></div>
+    <!-- 登入按鈕 -->
+    <div id="loginContainer" class="login-container">
+        <div id="g_id_onload"
+             data-client_id="YOUR_GOOGLE_CLIENT_ID"
+             data-login_uri=""
+             data-auto_prompt="false"
+             data-callback="handleCredentialResponse">
+        </div>
+        <div class="g_id_signin" data-type="standard"></div>
+    </div>
 
     <!-- 專案列表 -->
-    <div id="projectList" class="project-list"></div>
+    <div id="projectList" class="project-list" style="display:none;"></div>
 
     <!-- 浮動新增按鈕 -->
-    <button class="fab" onclick="createProject()">＋</button>
+    <button class="fab" onclick="createProject()" style="display:none;">＋</button>
 
 </div>
 
@@ -34,43 +42,58 @@
 <!-- 右側滑出設定 -->
 <div id="settingsPanel" class="settings-panel">
     <h3>設定</h3>
+
     <label class="switch-row">
         <span>暗色模式</span>
         <input type="checkbox" id="darkModeToggle">
     </label>
+    <button id="logoutBtn" style="margin-top:20px;">登出</button>
 </div>
 
 <script>
-// ======================
-// Google 登入
-// ======================
-let userId = localStorage.getItem("userId") || null;
+
+/* ======================
+   登入控制
+====================== */
+
+let currentUser = null;
 
 function handleCredentialResponse(response) {
+    // response.credential 可傳給後端驗證，這裡簡單用 base64 模擬帳號
     const payload = JSON.parse(atob(response.credential.split(".")[1]));
-    userId = payload.sub;
-    localStorage.setItem("userId", userId);
-    document.getElementById("gSignInDiv").style.display = "none";
-    loadProjects();
+    currentUser = payload.email;
+    localStorage.setItem("currentUser", currentUser);
+
+    // 隱藏登入區
+    document.getElementById("loginContainer").style.display = "none";
+    document.getElementById("projectList").style.display = "block";
+    document.querySelector(".fab").style.display = "block";
+
+    loadUserProjects();
 }
 
-if (!userId) {
-    google.accounts.id.initialize({
-        client_id: "109779045322-r31j708jj7igf0rfjl1iafen53nvpffa.apps.googleusercontent.com",
-        callback: handleCredentialResponse
-    });
-    google.accounts.id.renderButton(
-        document.getElementById("gSignInDiv"),
-        { theme: "outline", size: "large", width: "100%" }
-    );
-    google.accounts.id.prompt();
-} else {
-    document.getElementById("gSignInDiv").style.display = "none";
+const savedUser = localStorage.getItem("currentUser");
+if (savedUser) {
+    currentUser = savedUser;
+    document.getElementById("loginContainer").style.display = "none";
+    document.getElementById("projectList").style.display = "block";
+    document.querySelector(".fab").style.display = "block";
+    loadUserProjects();
 }
 
-// ======================
-// 設定滑出控制
-// ======================
+document.getElementById("logoutBtn").addEventListener("click", () => {
+    localStorage.removeItem("currentUser");
+    currentUser = null;
+    document.getElementById("loginContainer").style.display = "block";
+    document.getElementById("projectList").style.display = "none";
+    document.querySelector(".fab").style.display = "none";
+});
+
+
+/* ======================
+   設定滑出控制
+====================== */
+
 const settingsBtn = document.getElementById("settingsBtn");
 const settingsPanel = document.getElementById("settingsPanel");
 const overlay = document.getElementById("overlay");
@@ -79,53 +102,64 @@ function openSettings() {
     settingsPanel.classList.add("open");
     overlay.classList.add("show");
 }
+
 function closeSettings() {
     settingsPanel.classList.remove("open");
     overlay.classList.remove("show");
 }
+
 settingsBtn.addEventListener("click", () => {
-    if (settingsPanel.classList.contains("open")) closeSettings();
-    else openSettings();
+    if (settingsPanel.classList.contains("open")) {
+        closeSettings();
+    } else {
+        openSettings();
+    }
 });
+
 overlay.addEventListener("click", closeSettings);
 
-// ======================
-// 暗色模式記憶
-// ======================
+
+/* ======================
+   暗色模式記憶
+====================== */
+
 const toggle = document.getElementById("darkModeToggle");
+
 if (localStorage.getItem("darkMode") === "true") {
     document.body.classList.add("dark");
     toggle.checked = true;
 }
+
 toggle.addEventListener("change", () => {
     document.body.classList.toggle("dark", toggle.checked);
     localStorage.setItem("darkMode", toggle.checked);
 });
 
-// ======================
-// 專案管理
-// ======================
+
+/* ======================
+   專案管理（綁帳號）
+====================== */
+
+function getProjectsKey(user) {
+    return `projects_${user}`;
+}
+
 let projects = [];
 
-function loadProjects() {
-    if (!userId) return;
-    projects = JSON.parse(localStorage.getItem("projects_" + userId) || "[]");
+function loadUserProjects() {
+    if (!currentUser) return;
+    projects = JSON.parse(localStorage.getItem(getProjectsKey(currentUser)) || "[]");
     renderProjects();
 }
 
-function saveProjects() {
-    if (!userId) return;
-    localStorage.setItem("projects_" + userId, JSON.stringify(projects));
+function saveUserProjects() {
+    if (!currentUser) return;
+    localStorage.setItem(getProjectsKey(currentUser), JSON.stringify(projects));
 }
 
 function renderProjects() {
     const list = document.getElementById("projectList");
     list.innerHTML = "";
-
-    if (!userId) {
-        list.innerHTML = "<p class='empty'>請先登入 Google 帳號</p>";
-        return;
-    }
 
     if (projects.length === 0) {
         list.innerHTML = "<p class='empty'>尚無專案，點擊 ＋ 建立</p>";
@@ -143,21 +177,20 @@ function renderProjects() {
 }
 
 function createProject() {
-    if (!userId) { alert("請先登入 Google 帳號"); return; }
     const name = prompt("輸入專案名稱");
     if (!name) return;
+
     projects.push({ name });
-    saveProjects();
+    saveUserProjects();
     renderProjects();
 }
 
 function deleteProject(index) {
     projects.splice(index, 1);
-    saveProjects();
+    saveUserProjects();
     renderProjects();
 }
 
-if (userId) loadProjects();
 </script>
 </body>
 </html>
