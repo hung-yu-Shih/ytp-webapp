@@ -1,170 +1,122 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <title>AI 台北行旅工具</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="stylesheet" href="/static/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AI 台北行旅工具</title>
+<link rel="stylesheet" href="style.css">
 </head>
-<body>
 
+<body>
 <div class="app">
 
     <!-- Header -->
-    <div class="header">
-        <h1>行程專案</h1>
-        <button id="settingsBtn" class="menu-btn">☰</button>
+    <header class="app-header">
+        <h1>AI 台北行旅工具</h1>
+        <button id="settingBtn" class="setting-btn">⚙</button>
+    </header>
+
+    <!-- Project Section -->
+    <main class="project-container">
+        <div class="project-card">
+            <h2>建立行程專案</h2>
+            <button class="create-btn">＋ 新專案</button>
+        </div>
+
+        <div class="project-card">
+            <h3>東京五日遊</h3>
+            <p>尚未設定內容</p>
+        </div>
+
+        <div class="project-card">
+            <h3>台南兩日放空</h3>
+            <p>尚未設定內容</p>
+        </div>
+    </main>
+
+</div>
+
+<!-- 右側設定面板 -->
+<div id="overlay"></div>
+
+<div id="settingPanel">
+    <div class="panel-handle"></div>
+
+    <h2>設定</h2>
+
+    <div class="setting-item">
+        <label>暗色模式</label>
+        <label class="switch">
+            <input type="checkbox" id="darkToggle">
+            <span class="slider"></span>
+        </label>
     </div>
-
-    <!-- 專案列表 -->
-    <div id="projectList" class="project-list"></div>
-
-    <!-- 浮動新增按鈕 -->
-    <button class="fab" onclick="createProject()">＋</button>
-
 </div>
 
-<!-- 遮罩 -->
-<div id="overlay" class="overlay"></div>
-
-<!-- 右側滑出設定 -->
-<div id="settingsPanel" class="settings-panel">
-    <h3>設定</h3>
-
-    <label class="switch-row">
-        <span>暗色模式</span>
-        <input type="checkbox" id="darkModeToggle">
-    </label>
-</div>
 
 <script>
-
-/* ======================
-   設定滑出控制
-====================== */
-
-const settingsBtn = document.getElementById("settingsBtn");
-const settingsPanel = document.getElementById("settingsPanel");
+const settingBtn = document.getElementById("settingBtn");
+const settingPanel = document.getElementById("settingPanel");
 const overlay = document.getElementById("overlay");
+const darkToggle = document.getElementById("darkToggle");
 
-function openSettings() {
-    settingsPanel.classList.add("open");
+let startX = 0;
+let currentX = 0;
+let isDragging = false;
+
+/* =========================
+   設定面板開關
+========================= */
+
+function openPanel() {
+    settingPanel.classList.add("open");
     overlay.classList.add("show");
 }
 
-function closeSettings() {
-    settingsPanel.classList.remove("open");
+function closePanel() {
+    settingPanel.classList.remove("open");
     overlay.classList.remove("show");
 }
 
-settingsBtn.addEventListener("click", () => {
-    if (settingsPanel.classList.contains("open")) {
-        closeSettings();
-    } else {
-        openSettings();
+settingBtn.addEventListener("click", openPanel);
+overlay.addEventListener("click", closePanel);
+
+
+/* =========================
+   滑動關閉 + 回彈效果
+========================= */
+
+settingPanel.addEventListener("touchstart", (e) => {
+    startX = e.touches[0].clientX;
+    isDragging = true;
+});
+
+settingPanel.addEventListener("touchmove", (e) => {
+    if (!isDragging) return;
+    currentX = e.touches[0].clientX;
+    let diff = currentX - startX;
+
+    if (diff > 0) {
+        settingPanel.style.transform = `translateX(${diff}px)`;
     }
 });
 
-overlay.addEventListener("click", closeSettings);
+settingPanel.addEventListener("touchend", () => {
+    isDragging = false;
 
+    let diff = currentX - startX;
 
-/* ======================
-   暗色模式記憶
-====================== */
-
-const toggle = document.getElementById("darkModeToggle");
-
-if (localStorage.getItem("darkMode") === "true") {
-    document.body.classList.add("dark");
-    toggle.checked = true;
-}
-
-toggle.addEventListener("change", () => {
-    document.body.classList.toggle("dark", toggle.checked);
-    localStorage.setItem("darkMode", toggle.checked);
-});
-
-
-/* ======================
-   專案管理（本地存）
-====================== */
-
-let projects = JSON.parse(localStorage.getItem("projects") || "[]");
-
-function renderProjects() {
-    const list = document.getElementById("projectList");
-    list.innerHTML = "";
-
-    if (projects.length === 0) {
-        list.innerHTML = "<p class='empty'>尚無專案，點擊 ＋ 建立</p>";
-        return;
+    if (diff > 100) {
+        closePanel();
     }
 
-    projects.forEach((p, index) => {
-        list.innerHTML += `
-            <div class="project-card">
-                <div class="project-title">${p.name}</div>
-                <button class="delete-btn" onclick="deleteProject(${index})">刪除</button>
-            </div>
-        `;
-    });
-}
-
-function createProject() {
-    const name = prompt("輸入專案名稱");
-    if (!name) return;
-
-    projects.push({ name });
-    localStorage.setItem("projects", JSON.stringify(projects));
-    renderProjects();
-}
-
-function deleteProject(index) {
-    projects.splice(index, 1);
-    localStorage.setItem("projects", JSON.stringify(projects));
-    renderProjects();
-}
-
-renderProjects();
-
-<script>
-
-/* ======================
-   DOM
-====================== */
-
-const settingsBtn = document.getElementById("settingsBtn");
-const settingsPanel = document.getElementById("settingsPanel");
-const overlay = document.getElementById("overlay");
-const darkToggle = document.getElementById("darkModeToggle");
-
-/* ======================
-   開關設定面板
-====================== */
-
-function openSettings() {
-    settingsPanel.classList.add("open");
-    overlay.classList.add("show");
-}
-
-function closeSettings() {
-    settingsPanel.classList.remove("open");
-    overlay.classList.remove("show");
-    settingsPanel.style.transform = "translateX(0)";
-}
-
-settingsBtn.addEventListener("click", () => {
-    settingsPanel.classList.contains("open")
-        ? closeSettings()
-        : openSettings();
+    settingPanel.style.transform = "";
 });
 
-overlay.addEventListener("click", closeSettings);
 
-
-/* ======================
-   暗色模式記憶
-====================== */
+/* =========================
+   暗色模式 + 記憶
+========================= */
 
 if (localStorage.getItem("darkMode") === "true") {
     document.body.classList.add("dark");
@@ -172,97 +124,9 @@ if (localStorage.getItem("darkMode") === "true") {
 }
 
 darkToggle.addEventListener("change", () => {
-    document.body.classList.toggle("dark", darkToggle.checked);
+    document.body.classList.toggle("dark");
     localStorage.setItem("darkMode", darkToggle.checked);
 });
-
-
-/* ======================
-   專案管理
-====================== */
-
-let projects = JSON.parse(localStorage.getItem("projects") || "[]");
-
-function renderProjects() {
-    const list = document.getElementById("projectList");
-    list.innerHTML = "";
-
-    if (projects.length === 0) {
-        list.innerHTML = "<p class='empty'>尚無專案，點擊 ＋ 建立</p>";
-        return;
-    }
-
-    projects.forEach((p, index) => {
-        list.innerHTML += `
-            <div class="project-card">
-                <div class="project-title">${p.name}</div>
-                <button class="delete-btn" onclick="deleteProject(${index})">刪除</button>
-            </div>
-        `;
-    });
-}
-
-function createProject() {
-    const name = prompt("輸入專案名稱");
-    if (!name) return;
-
-    projects.push({ name });
-    localStorage.setItem("projects", JSON.stringify(projects));
-    renderProjects();
-}
-
-function deleteProject(index) {
-    projects.splice(index, 1);
-    localStorage.setItem("projects", JSON.stringify(projects));
-    renderProjects();
-}
-
-renderProjects();
-
-
-/* ======================
-   滑動關閉 + 回彈
-====================== */
-
-let startX = 0;
-let currentX = 0;
-let isDragging = false;
-const panelWidth = 260;
-
-settingsPanel.addEventListener("touchstart", (e) => {
-    startX = e.touches[0].clientX;
-    isDragging = true;
-    settingsPanel.style.transition = "none";
-});
-
-settingsPanel.addEventListener("touchmove", (e) => {
-    if (!isDragging) return;
-
-    currentX = e.touches[0].clientX;
-    let diff = currentX - startX;
-
-    if (diff > 0) {
-        let translate = Math.min(diff, panelWidth);
-        settingsPanel.style.transform = `translateX(${translate}px)`;
-    }
-});
-
-settingsPanel.addEventListener("touchend", () => {
-    if (!isDragging) return;
-    isDragging = false;
-
-    settingsPanel.style.transition =
-        "transform 0.3s cubic-bezier(.22,1,.36,1)";
-
-    let diff = currentX - startX;
-
-    if (diff > panelWidth / 3) {
-        closeSettings();
-    } else {
-        settingsPanel.style.transform = "translateX(0)";
-    }
-});
-
 </script>
 
 </body>
