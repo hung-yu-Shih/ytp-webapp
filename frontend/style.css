@@ -121,7 +121,6 @@ body {
     pointer-events: auto;
 }
 
-/* 右側設定面板 */
 .settings-panel {
     position: fixed;
     top: 0;
@@ -131,20 +130,19 @@ body {
     background: var(--card);
     box-shadow: -6px 0 25px rgba(0,0,0,0.25);
     padding: 25px;
-    transition: transform 0.3s ease;
     z-index: 100;
     display: flex;
     flex-direction: column;
     gap: 25px;
 
-    transform: translateX(100%); /* 完全移出畫面 */
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(.22,1,.36,1);
+    will-change: transform;
 }
 
 .settings-panel.open {
     transform: translateX(0);
 }
-
-
 
 .switch-row {
     display: flex;
