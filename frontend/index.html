@@ -13,37 +13,67 @@
     <!-- Header -->
     <div class="header">
         <h1>行程專案</h1>
-        <button id="settingsBtn">☰</button>
+        <button id="settingsBtn" class="menu-btn">☰</button>
     </div>
 
     <!-- 專案列表 -->
     <div id="projectList" class="project-list"></div>
 
-    <!-- 新增專案按鈕 -->
+    <!-- 浮動新增按鈕 -->
     <button class="fab" onclick="createProject()">＋</button>
 
 </div>
 
+<!-- 遮罩 -->
+<div id="overlay" class="overlay"></div>
+
 <!-- 右側滑出設定 -->
 <div id="settingsPanel" class="settings-panel">
     <h3>設定</h3>
-    <label class="switch">
-        <input type="checkbox" id="darkModeToggle">
+
+    <label class="switch-row">
         <span>暗色模式</span>
+        <input type="checkbox" id="darkModeToggle">
     </label>
 </div>
 
 <script>
 
+/* ======================
+   設定滑出控制
+====================== */
+
 const settingsBtn = document.getElementById("settingsBtn");
 const settingsPanel = document.getElementById("settingsPanel");
+const overlay = document.getElementById("overlay");
+
+function openSettings() {
+    settingsPanel.classList.add("open");
+    overlay.classList.add("show");
+}
+
+function closeSettings() {
+    settingsPanel.classList.remove("open");
+    overlay.classList.remove("show");
+}
 
 settingsBtn.addEventListener("click", () => {
-    settingsPanel.classList.toggle("open");
+    if (settingsPanel.classList.contains("open")) {
+        closeSettings();
+    } else {
+        openSettings();
+    }
 });
 
-/* 暗色模式記憶 */
+overlay.addEventListener("click", closeSettings);
+
+
+/* ======================
+   暗色模式記憶
+====================== */
+
 const toggle = document.getElementById("darkModeToggle");
+
 if (localStorage.getItem("darkMode") === "true") {
     document.body.classList.add("dark");
     toggle.checked = true;
@@ -54,7 +84,11 @@ toggle.addEventListener("change", () => {
     localStorage.setItem("darkMode", toggle.checked);
 });
 
-/* 專案管理 */
+
+/* ======================
+   專案管理（本地存）
+====================== */
+
 let projects = JSON.parse(localStorage.getItem("projects") || "[]");
 
 function renderProjects() {
@@ -62,7 +96,7 @@ function renderProjects() {
     list.innerHTML = "";
 
     if (projects.length === 0) {
-        list.innerHTML = "<p class='empty'>尚無專案，點擊 + 建立</p>";
+        list.innerHTML = "<p class='empty'>尚無專案，點擊 ＋ 建立</p>";
         return;
     }
 
