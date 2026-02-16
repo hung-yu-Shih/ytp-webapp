@@ -1,12 +1,16 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import sqlite3
 from pathlib import Path
 
 app = FastAPI(title="AI 台北行旅工具 API")
 
+# =====================
 # CORS
+# =====================
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -14,7 +18,24 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-# SQLite DB
+# =====================
+# 前端靜態檔案設定
+# =====================
+BASE_DIR = Path(__file__).parent.parent
+frontend_dir = BASE_DIR / "frontend"
+
+app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
+
+@app.get("/", include_in_schema=False)
+def root():
+    index_file = frontend_dir / "index.html"
+    if not index_file.exists():
+        return {"error":"index.html 不存在"}
+    return FileResponse(index_file)
+
+# =====================
+# SQLite 資料庫
+# =====================
 DB_PATH = Path(__file__).parent / "app.db"
 
 def get_conn():
@@ -22,9 +43,9 @@ def get_conn():
     conn.row_factory = sqlite3.Row
     return conn
 
-# 初始化 DB
 def init_db():
     conn = get_conn()
+    # 使用者表
     conn.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,6 +53,7 @@ def init_db():
         password TEXT NOT NULL
     )
     """)
+    # 專案表
     conn.execute("""
     CREATE TABLE IF NOT EXISTS projects (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,7 +78,7 @@ class ProjectData(BaseModel):
     name: str
 
 # =====================
-# 使用者登入/註冊
+# 使用者登入 / 註冊
 # =====================
 @app.post("/register")
 def register(data: AuthData):
