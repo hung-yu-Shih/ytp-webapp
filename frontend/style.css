@@ -1,178 +1,105 @@
-/* 保持之前的暗色模式與滑出設定樣式 */
 :root {
-    --bg-color: #f5f5f5;
-    --container-bg: #fff;
-    --text-color: #000;
-    --result-bg: #eee;
-    --button-bg: #007bff;
-    --button-color: #fff;
+    --bg: #f2f2f2;
+    --card: #ffffff;
+    --text: #000;
+    --primary: #007bff;
 }
 
 body.dark {
-    --bg-color: #121212;
-    --container-bg: #1e1e1e;
-    --text-color: #f5f5f5;
-    --result-bg: #2a2a2a;
-    --button-bg: #1a73e8;
-    --button-color: #fff;
+    --bg: #121212;
+    --card: #1e1e1e;
+    --text: #ffffff;
+    --primary: #1a73e8;
 }
 
 body {
-    font-family: Arial, sans-serif;
-    background: var(--bg-color);
-    color: var(--text-color);
     margin: 0;
+    font-family: Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
     display: flex;
     justify-content: center;
-    padding-top: 20px;
 }
 
-.container {
+.app {
     width: 100%;
-    max-width: 400px;
-    background: var(--container-bg);
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    padding: 20px;
+    max-width: 420px;
+    min-height: 100vh;
+    padding: 15px;
     box-sizing: border-box;
+    position: relative;
 }
 
-header {
+/* Header */
+.header {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-header h1 {
-    font-size: 1.4em;
-    margin: 0;
-}
-
-#settingsBtn {
-    background: var(--button-bg);
-    color: var(--button-color);
-    border: none;
-    border-radius: 8px;
-    padding: 5px 10px;
-    font-size: 1.2em;
-    cursor: pointer;
-}
-
-main {
+/* 專案列表 */
+.project-list {
     margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
 }
 
-input[type="text"] {
-    padding: 12px;
-    font-size: 16px;
-    border-radius: 8px;
-    border: none;
-    background: var(--result-bg);
-    color: var(--text-color);
-}
-
-button {
-    padding: 12px;
-    font-size: 16px;
-    border: none;
-    border-radius: 8px;
-    background: var(--button-bg);
-    color: var(--button-color);
-    cursor: pointer;
-}
-
-#result {
-    margin-top: 15px;
-    background: var(--result-bg);
-    border-radius: 8px;
-    padding: 12px;
-    min-height: 80px;
-}
-
-.error {
-    color: #ff4d4f;
-}
-
-/* 地圖 */
-#map {
-    width: 100%;
-    height: 250px;
+.project-card {
+    background: var(--card);
+    padding: 15px;
     border-radius: 12px;
-    z-index: 10;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-/* 右側滑出設定面板 */
+.project-title {
+    font-weight: bold;
+}
+
+.delete-btn {
+    background: crimson;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+}
+
+/* 空狀態 */
+.empty {
+    text-align: center;
+    margin-top: 50px;
+    opacity: 0.6;
+}
+
+/* 浮動新增按鈕 */
+.fab {
+    position: fixed;
+    bottom: 25px;
+    right: calc(50% - 180px);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    font-size: 28px;
+    border: none;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+}
+
+/* 設定滑出 */
 .settings-panel {
     position: fixed;
     top: 0;
-    right: -250px;
-    width: 250px;
+    right: -260px;
+    width: 260px;
     height: 100%;
-    background: var(--container-bg);
+    background: var(--card);
     box-shadow: -4px 0 20px rgba(0,0,0,0.3);
     padding: 20px;
-    box-sizing: border-box;
     transition: right 0.3s ease;
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
 }
 
-.settings-panel.open { right: 0; }
-
-.settings-panel h3 {
-    margin: 0;
-    font-size: 1.2em;
-    text-align: center;
+.settings-panel.open {
+    right: 0;
 }
-
-.settings-panel .switch {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-}
-
-#closeSettings {
-    margin-top: auto;
-    padding: 10px;
-    border: none;
-    border-radius: 8px;
-    background: var(--button-bg);
-    color: var(--button-color);
-    cursor: pointer;
-}
-
-/* 滑動開關美化 */
-.switch input { display: none; }
-
-.switch .slider {
-    width: 40px;
-    height: 20px;
-    background: #ccc;
-    border-radius: 12px;
-    position: relative;
-    display: inline-block;
-}
-
-.switch .slider::before {
-    content: "";
-    position: absolute;
-    width: 18px;
-    height: 18px;
-    left: 1px;
-    top: 1px;
-    background: white;
-    border-radius: 50%;
-    transition: 0.3s;
-}
-
-.switch input:checked + .slider::before {
-    transform: translateX(20px);
-}
-
-.switch input:checked + .slider { background: #4caf50; }
