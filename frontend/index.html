@@ -49,11 +49,9 @@
 </div>
 
 <script>
-
 /* ======================
-   模擬後端帳號（localStorage）
+   模擬帳號（localStorage）
 ====================== */
-
 let currentUser = localStorage.getItem("currentUser") || null;
 const authPanel = document.getElementById("authPanel");
 const projectListEl = document.getElementById("projectList");
@@ -79,46 +77,27 @@ function hideApp() {
 
 if (currentUser) showAppForUser();
 
-/* ======================
-   登入 / 註冊
-====================== */
-
-function getUserKey(username) {
-    return `user_${username}`;
-}
+function getUserKey(username){ return `user_${username}`; }
 
 function register() {
     const username = document.getElementById("usernameInput").value.trim();
     const password = document.getElementById("passwordInput").value;
-    if (!username || !password) {
-        authMsg.textContent = "帳號密碼不可空白";
-        return;
-    }
-    if (localStorage.getItem(getUserKey(username))) {
-        authMsg.textContent = "帳號已存在";
-        return;
-    }
-    // 儲存帳號
+    if(!username || !password){ authMsg.textContent="帳號密碼不可空白"; return; }
+    if(localStorage.getItem(getUserKey(username))){ authMsg.textContent="帳號已存在"; return; }
     localStorage.setItem(getUserKey(username), JSON.stringify({ password }));
-    authMsg.textContent = "註冊成功，請登入";
+    authMsg.textContent="註冊成功，請登入";
 }
 
 function login() {
     const username = document.getElementById("usernameInput").value.trim();
     const password = document.getElementById("passwordInput").value;
     const userData = localStorage.getItem(getUserKey(username));
-    if (!userData) {
-        authMsg.textContent = "帳號不存在";
-        return;
-    }
+    if(!userData){ authMsg.textContent="帳號不存在"; return; }
     const userObj = JSON.parse(userData);
-    if (userObj.password !== password) {
-        authMsg.textContent = "密碼錯誤";
-        return;
-    }
+    if(userObj.password!==password){ authMsg.textContent="密碼錯誤"; return; }
     currentUser = username;
     saveCurrentUser();
-    authMsg.textContent = "";
+    authMsg.textContent="";
     showAppForUser();
 }
 
@@ -128,11 +107,9 @@ document.getElementById("logoutBtn").addEventListener("click", () => {
     hideApp();
 });
 
-
 /* ======================
    設定滑出控制
 ====================== */
-
 const settingsBtn = document.getElementById("settingsBtn");
 const settingsPanel = document.getElementById("settingsPanel");
 const overlay = document.getElementById("overlay");
@@ -140,15 +117,17 @@ const overlay = document.getElementById("overlay");
 function openSettings() {
     settingsPanel.classList.add("open");
     overlay.classList.add("show");
+    settingsPanel.style.transform="translateX(0)";
 }
 
 function closeSettings() {
     settingsPanel.classList.remove("open");
     overlay.classList.remove("show");
+    settingsPanel.style.transform="translateX(100%)";
 }
 
 settingsBtn.addEventListener("click", () => {
-    if (settingsPanel.classList.contains("open")) {
+    if(settingsPanel.classList.contains("open")){
         closeSettings();
     } else {
         openSettings();
@@ -157,56 +136,44 @@ settingsBtn.addEventListener("click", () => {
 
 overlay.addEventListener("click", closeSettings);
 
-
 /* ======================
    暗色模式
 ====================== */
-
 const toggle = document.getElementById("darkModeToggle");
-
-if (localStorage.getItem("darkMode") === "true") {
+if(localStorage.getItem("darkMode")==="true"){
     document.body.classList.add("dark");
     toggle.checked = true;
 }
 
-toggle.addEventListener("change", () => {
+toggle.addEventListener("change",()=>{
     document.body.classList.toggle("dark", toggle.checked);
     localStorage.setItem("darkMode", toggle.checked);
 });
 
-
 /* ======================
-   專案管理（綁帳號）
+   專案管理
 ====================== */
-
-function getProjectsKey(user) {
-    return `projects_${user}`;
-}
+function getProjectsKey(user){ return `projects_${user}`; }
 
 let projects = [];
 
-function loadUserProjects() {
-    if (!currentUser) return;
+function loadUserProjects(){
+    if(!currentUser) return;
     projects = JSON.parse(localStorage.getItem(getProjectsKey(currentUser)) || "[]");
     renderProjects();
 }
 
-function saveUserProjects() {
-    if (!currentUser) return;
+function saveUserProjects(){
+    if(!currentUser) return;
     localStorage.setItem(getProjectsKey(currentUser), JSON.stringify(projects));
 }
 
-function renderProjects() {
+function renderProjects(){
     const list = document.getElementById("projectList");
-    list.innerHTML = "";
-
-    if (projects.length === 0) {
-        list.innerHTML = "<p class='empty'>尚無專案，點擊 ＋ 建立</p>";
-        return;
-    }
-
-    projects.forEach((p, index) => {
-        list.innerHTML += `
+    list.innerHTML="";
+    if(projects.length===0){ list.innerHTML="<p class='empty'>尚無專案，點擊 ＋ 建立</p>"; return; }
+    projects.forEach((p,index)=>{
+        list.innerHTML+=`
             <div class="project-card">
                 <div class="project-title">${p.name}</div>
                 <button class="delete-btn" onclick="deleteProject(${index})">刪除</button>
@@ -215,21 +182,45 @@ function renderProjects() {
     });
 }
 
-function createProject() {
+function createProject(){
     const name = prompt("輸入專案名稱");
-    if (!name) return;
-
+    if(!name) return;
     projects.push({ name });
     saveUserProjects();
     renderProjects();
 }
 
-function deleteProject(index) {
-    projects.splice(index, 1);
+function deleteProject(index){
+    projects.splice(index,1);
     saveUserProjects();
     renderProjects();
 }
 
+/* ======================
+   滑動手勢關閉設定
+====================== */
+let startX=0, isDragging=false;
+
+settingsPanel.addEventListener("touchstart", e=>{
+    startX = e.touches[0].clientX;
+    isDragging = true;
+});
+
+settingsPanel.addEventListener("touchmove", e=>{
+    if(!isDragging) return;
+    const deltaX = e.touches[0].clientX - startX;
+    if(deltaX<0){
+        settingsPanel.style.transform = `translateX(${Math.min(-deltaX,260)}px)`; 
+    }
+});
+
+settingsPanel.addEventListener("touchend", e=>{
+    if(!isDragging) return;
+    isDragging=false;
+    const deltaX = e.changedTouches[0].clientX - startX;
+    if(deltaX < -80){ closeSettings(); }
+    else{ settingsPanel.style.transform="translateX(0)"; }
+});
 </script>
 </body>
 </html>
